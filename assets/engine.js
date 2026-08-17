@@ -57,6 +57,8 @@
     currentPackId = id;
     window.SL_CURRENT_PACK = id;
     var pack = window.SL_PACKS[id];
+    if (holiday !== 'none') { swapHolidayCategoryContent(pack, holiday); }
+    if (pack.refreshPools) pack.refreshPools();
     applyAccent(pack.accent);
     if (window.SL_renderHeader) window.SL_renderHeader();
     renderShell(pack);
@@ -112,6 +114,7 @@
     var pack = window.SL_PACKS[currentPackId];
     swapHolidayCategoryContent(pack, newHoliday);
     holiday = newHoliday;
+    if (pack.refreshPools) pack.refreshPools();
     applyHolidayVisuals();
     renderColumns(pack);
     renderResultRow(pack);
@@ -643,6 +646,8 @@
       .then(function (value) { currentCount = value; if (counterEl) counterEl.textContent = formatCount(value); })
       .catch(function (err) { console.error('Sketch Ideas counter increment failed:', err); });
   }
+
+  window.SL_getActiveHoliday = function () { return holiday; };
 
   // ---------------- Boot ----------------
   window.SL_boot = function (defaultPackId) {
