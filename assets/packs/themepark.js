@@ -11,54 +11,76 @@
   var DISNEY_PARKS = ['Magic Kingdom', 'EPCOT', 'Hollywood Studios', 'Animal Kingdom'];
   var UNIVERSAL_PARKS = ['Universal Studios Florida', 'Islands of Adventure', 'Epic Universe'];
 
+  // "General" roster — classic/flagship characters treated as roaming every
+  // park of their brand (this is how they actually work in real life: Mickey
+  // shows up at Magic Kingdom AND EPCOT AND Hollywood Studios, etc.).
   var DISNEY_CHARACTERS = ["Mickey Mouse", "Minnie Mouse", "Donald Duck", "Goofy", "Pluto", "Daisy Duck", "Chip & Dale", "Stitch", "Winnie the Pooh", "Tigger"];
   var UNIVERSAL_CHARACTERS = ["Cat in the Hat", "E.T.", "Jaws", "King Kong", "T-Rex (Jurassic Park)", "Spider-Man", "Harry Potter", "Minions", "Shrek", "Optimus Prime"];
 
+  // Park-specific characters — only show up when that exact park is toggled
+  // (this is where the former "Meet-and-Greet:" entries live now). Deduped
+  // against the general roster above (e.g. Mickey Mouse isn't repeated here).
+  var PARK_CHARACTERS = {
+    'Magic Kingdom': ["Cinderella", "Tiana", "Rapunzel", "Ariel"],
+    'EPCOT': ["Figment", "Joy", "Anna & Elsa"],
+    'Hollywood Studios': ["Darth Vader / Kylo Ren", "Chewbacca", "Woody & Jessie", "Edna Mode", "Sorcerer Mickey & Red Carpet Minnie"],
+    'Animal Kingdom': ["Mickey & Minnie Mouse in Safari Gear", "Moana", "Kevin", "Timon & Rafiki"],
+    'Universal Studios Florida': ["SpongeBob SquarePants & Patrick Star", "The Simpsons Family", "Doc Brown", "Bumblebee & Megatron"],
+    'Islands of Adventure': ["Marvel Super Heroes", "Blue the Raptor", "Captain America", "The Grinch", "Betty Boop / Popeye"],
+    'Epic Universe': ["Mario & Luigi", "Princess Peach", "Toad", "Frankenstein's Monster & The Bride", "Hiccup & Toothless"]
+  };
+
+  // Snacks stay brand-wide (every Disney park shares the same snack pool,
+  // every Universal park shares the same snack pool) — not park-specific.
   var DISNEY_SNACKS = ["Popcorn", "Churro", "Turkey Leg", "Mickey Pretzel", "Mickey Ice Cream Bar", "Mickey Ice Cream Sandwich", "Dole Whip", "The Grey Stuff", "Mickey Beignet", "Citrus Swirl"];
   var UNIVERSAL_SNACKS = ["Butterbeer", "The \"Big Pink\" Lard Lad Donut", "Green Eggs and Ham", "Pumpkin Juice", "Chocolate Frog", "Moose Juice & Goose Juice", "Krusty Burger", "Fire-Breathing Dragon's Egg", "Butterbeer Fudge", "Cinnamon Toast Crunch French Toast"];
 
-  // Attractions + meet-and-greets, combined into one Attraction/Location pool per park.
+  // Attraction/Location pool per park — rides only now (meet-and-greets
+  // moved into PARK_CHARACTERS above).
   var PARK_LOCATIONS = {
     'Magic Kingdom': [
       "TRON Lightcycle / Run", "Seven Dwarfs Mine Train", "Space Mountain", "Big Thunder Mountain Railroad",
-      "The Haunted Mansion", "Pirates of the Caribbean", "Tiana's Bayou Adventure", "Peter Pan's Flight",
-      "Meet-and-Greet: Mickey Mouse", "Meet-and-Greet: Cinderella", "Meet-and-Greet: Tiana", "Meet-and-Greet: Rapunzel", "Meet-and-Greet: Ariel"
+      "The Haunted Mansion", "Pirates of the Caribbean", "Tiana's Bayou Adventure", "Peter Pan's Flight"
     ],
     'EPCOT': [
       "Guardians of the Galaxy: Cosmic Rewind", "Remy's Ratatouille Adventure", "Frozen Ever After",
-      "Soarin' Around the World", "Test Track", "Spaceship Earth",
-      "Meet-and-Greet: Figment", "Meet-and-Greet: Joy", "Meet-and-Greet: Anna & Elsa", "Meet-and-Greet: Donald Duck", "Meet-and-Greet: Mickey Mouse"
+      "Soarin' Around the World", "Test Track", "Spaceship Earth"
     ],
     'Hollywood Studios': [
       "Star Wars: Rise of the Resistance", "Slinky Dog Dash", "The Twilight Zone Tower of Terror",
-      "Mickey & Minnie's Runaway Railway", "Millennium Falcon: Smugglers Run", "Rock 'n' Roller Coaster Starring The Muppets", "Toy Story Mania!",
-      "Meet-and-Greet: Darth Vader / Kylo Ren", "Meet-and-Greet: Chewbacca", "Meet-and-Greet: Woody & Jessie", "Meet-and-Greet: Edna Mode", "Meet-and-Greet: Sorcerer Mickey & Red Carpet Minnie"
+      "Mickey & Minnie's Runaway Railway", "Millennium Falcon: Smugglers Run", "Rock 'n' Roller Coaster Starring The Muppets", "Toy Story Mania!"
     ],
     'Animal Kingdom': [
       "Avatar Flight of Passage", "Expedition Everest – Legend of the Forbidden Mountain", "Kilimanjaro Safaris",
-      "Na'vi River Journey", "Festival of the Lion King",
-      "Meet-and-Greet: Mickey & Minnie Mouse in Safari Gear", "Meet-and-Greet: Moana", "Meet-and-Greet: Kevin", "Meet-and-Greet: Donald Duck", "Meet-and-Greet: Timon & Rafiki"
+      "Na'vi River Journey", "Festival of the Lion King"
     ],
     'Universal Studios Florida': [
       "Harry Potter and the Escape from Gringotts", "Revenge of the Mummy", "E.T. Adventure", "MEN IN BLACK Alien Attack",
-      "TRANSFORMERS: The Ride-3D", "Despicable Me Minion Mayhem", "The Bourne Stuntacular",
-      "Meet-and-Greet: Optimus Prime / Bumblebee / Megatron", "Meet-and-Greet: SpongeBob SquarePants & Patrick Star", "Meet-and-Greet: Illumination's Minions", "Meet-and-Greet: The Simpsons Family", "Meet-and-Greet: Doc Brown"
+      "TRANSFORMERS: The Ride-3D", "Despicable Me Minion Mayhem", "The Bourne Stuntacular"
     ],
     'Islands of Adventure': [
       "Hagrid's Magical Creatures Motorbike Adventure", "Jurassic World VelociCoaster", "Harry Potter and the Forbidden Journey",
-      "The Incredible Hulk Coaster", "The Amazing Adventures of Spider-Man", "Jurassic Park River Adventure", "Dudley Do-Right's Ripsaw Falls",
-      "Meet-and-Greet: Spider-Man & Marvel Super Heroes", "Meet-and-Greet: Blue the Raptor", "Meet-and-Greet: Captain America", "Meet-and-Greet: The Grinch & Cat in the Hat", "Meet-and-Greet: Betty Boop / Popeye"
+      "The Incredible Hulk Coaster", "The Amazing Adventures of Spider-Man", "Jurassic Park River Adventure", "Dudley Do-Right's Ripsaw Falls"
     ],
     'Epic Universe': [
       "Harry Potter and the Battle at the Ministry", "Stardust Racers", "Monsters Unchained: The Frankenstein Experiment",
-      "Mario Kart: Bowser's Challenge", "Mine-Cart Madness with Donkey Kong", "Dragon Racer's Rally",
-      "Meet-and-Greet: Mario & Luigi", "Meet-and-Greet: Princess Peach", "Meet-and-Greet: Toad", "Meet-and-Greet: Frankenstein's Monster & The Bride", "Meet-and-Greet: Hiccup & Toothless"
+      "Mario Kart: Bowser's Challenge", "Mine-Cart Madness with Donkey Kong", "Dragon Racer's Rally"
     ]
   };
 
   var ACTIONS = ["Eating", "Posing With", "Sharing", "Spilling", "Chasing", "Photographing", "Waiting In Line For", "Hugging", "Guarding", "Savoring"];
-  var OUTFITS = ["Mickey Ears", "Matching Family Shirts", "Poncho (Just In Case)", "Fanny Pack", "Sun Hat", "Cooling Towel", "Autograph Book & Lanyard", "Light-Up Spinner Toy", "Sunglasses", "Glow Necklace"];
-  var MOODS = ["Excited", "Sweaty", "Overjoyed", "Exhausted", "Starstruck", "Hangry", "Determined", "Giddy", "Overstimulated", "Blissed Out"];
+  // Outfit is mostly generic (works at any park), except Mickey Ears —
+  // that's Disney-branded and should only appear when a Disney park (or
+  // Bonkers Mode) is active, same treatment as Character/Snack/Attraction.
+  var GENERAL_OUTFITS = ["Matching Family Shirts", "Poncho (Just In Case)", "Fanny Pack", "Sun Hat", "Cooling Towel", "Autograph Book & Lanyard", "Light-Up Spinner Toy", "Sunglasses", "Glow Necklace"];
+  var DISNEY_OUTFITS = ["Mickey Ears"];
+  var MOODS = ["Excited", "Sweaty", "Overjoyed", "Exhausted", "Starstruck", "Determined", "Giddy"];
+
+  function uniq(arr) {
+    var seen = {}, out = [];
+    arr.forEach(function (x) { if (!seen[x]) { seen[x] = true; out.push(x); } });
+    return out;
+  }
 
   var ALL_PARKS = DISNEY_PARKS.concat(UNIVERSAL_PARKS);
 
@@ -66,7 +88,7 @@
     character: { label: "Character", icon: "🎭", items: [] },
     action: { label: "Action", icon: "🏃", items: ACTIONS.slice() },
     snack: { label: "Snack", icon: "🍿", items: [] },
-    outfit: { label: "Outfit", icon: "🎽", items: OUTFITS.slice() },
+    outfit: { label: "Outfit", icon: "🎽", items: [] },
     mood: { label: "Mood", icon: "😆", items: MOODS.slice() },
     attraction: { label: "Attraction/Location", icon: "🎢", items: [] }
   };
@@ -115,6 +137,16 @@
     return out;
   }
 
+  // General roster (always available once any park of that brand is on) +
+  // park-specific extras for exactly the toggled parks of that brand.
+  function charactersForUniverse(universe) {
+    var general = universe === 'disney' ? DISNEY_CHARACTERS : UNIVERSAL_CHARACTERS;
+    var parks = universe === 'disney' ? toggledOfBrand('disney') : toggledOfBrand('universal');
+    var extra = [];
+    parks.forEach(function (p) { extra = extra.concat(PARK_CHARACTERS[p] || []); });
+    return uniq(general.concat(extra));
+  }
+
   function anyToggled() { return ALL_PARKS.some(function (p) { return toggledParks[p]; }); }
 
   // Current holiday overlay's snack items (empty array if no overlay active).
@@ -128,11 +160,31 @@
     return [];
   }
 
-  // Recompute character/snack/attraction pools right before each spin so the
-  // shared engine's normal "pick a random item from categories[key].items"
-  // logic keeps working unmodified for every other pack.
+  // Holiday costumes take over Outfit entirely when the overlay is on
+  // (returns null when no overlay is active, meaning "use the normal pool").
+  function activeHolidayCostumes() {
+    var h = window.SL_getActiveHoliday && window.SL_getActiveHoliday();
+    if (h && h !== 'none' && window.SL_HOLIDAY_DATA && window.SL_HOLIDAY_DATA[h]) {
+      return window.SL_HOLIDAY_DATA[h].costumes.slice();
+    }
+    return null;
+  }
+
+  // Recompute character/snack/attraction/outfit pools right before each spin
+  // so the shared engine's normal "pick a random item from
+  // categories[key].items" logic keeps working unmodified for every other
+  // pack. Outfit is computed here (not via the generic engine-level holiday
+  // swap) because its base content — Mickey Ears or not — already depends
+  // on which parks are toggled, same as Snack.
   function refreshPools() {
     var holidaySnacks = activeHolidaySnacks();
+    var holidayCostumes = activeHolidayCostumes();
+    if (holidayCostumes) {
+      categories.outfit.items = holidayCostumes;
+    } else {
+      var disneyActive = bonkers || toggledOfBrand('disney').length > 0;
+      categories.outfit.items = GENERAL_OUTFITS.concat(disneyActive ? DISNEY_OUTFITS : []);
+    }
     if (!anyToggled()) {
       categories.character.items = [];
       categories.snack.items = holidaySnacks.slice();
@@ -141,7 +193,9 @@
     }
     if (bonkers) {
       // Full chaos: every toggled park's content, no universe separation.
-      categories.character.items = DISNEY_CHARACTERS.concat(UNIVERSAL_CHARACTERS);
+      var allChars = DISNEY_CHARACTERS.concat(UNIVERSAL_CHARACTERS);
+      ALL_PARKS.forEach(function (p) { if (toggledParks[p]) allChars = allChars.concat(PARK_CHARACTERS[p] || []); });
+      categories.character.items = uniq(allChars);
       categories.snack.items = DISNEY_SNACKS.concat(UNIVERSAL_SNACKS).concat(holidaySnacks);
       var allLocs = [];
       ALL_PARKS.forEach(function (p) { if (toggledParks[p]) allLocs = allLocs.concat(PARK_LOCATIONS[p] || []); });
@@ -150,7 +204,7 @@
     }
     var universe = pickUniverse();
     if (!universe) { categories.character.items = []; categories.snack.items = holidaySnacks.slice(); categories.attraction.items = []; return; }
-    categories.character.items = universe === 'disney' ? DISNEY_CHARACTERS.slice() : UNIVERSAL_CHARACTERS.slice();
+    categories.character.items = charactersForUniverse(universe);
     categories.snack.items = (universe === 'disney' ? DISNEY_SNACKS.slice() : UNIVERSAL_SNACKS.slice()).concat(holidaySnacks);
     categories.attraction.items = locationsForUniverse(universe);
   }
@@ -212,10 +266,11 @@
     bgColor: '#3a1a4d',
     watermark: 'Sketch Lab Central — Theme Park Edition',
     resultLabel: 'Sketch Idea',
-    // Snack is handled entirely by refreshPools() (base pool + current
-    // holiday snacks, if any) rather than the generic engine-level swap,
-    // since its base content already changes with park toggles.
-    holidayMap: { outfit: 'outfit', snack: null },
+    // Snack and Outfit are both handled entirely by refreshPools() (base
+    // pool + park-dependent extras + current holiday content, if any)
+    // rather than the generic engine-level swap, since their base content
+    // already changes with park toggles.
+    holidayMap: { outfit: null, snack: null },
     // Pools are recomputed only when park toggles / Bonkers change (see
     // renderExtraControls below) or the Holiday Overlay changes, not on
     // every spin — so any custom items a user adds to Character/Attraction
