@@ -56,7 +56,7 @@
     ]
   };
 
-  var ACTIONS = ["Eating", "Posing With", "Riding", "Sharing", "Spilling", "Chasing", "Photographing", "Waiting In Line For", "Hugging", "Dancing Near"];
+  var ACTIONS = ["Eating", "Posing With", "Sharing", "Spilling", "Chasing", "Photographing", "Waiting In Line For", "Hugging", "Guarding", "Savoring"];
   var OUTFITS = ["Mickey Ears", "Matching Family Shirts", "Poncho (Just In Case)", "Fanny Pack", "Sun Hat", "Cooling Towel", "Autograph Book & Lanyard", "Light-Up Spinner Toy", "Sunglasses", "Glow Necklace"];
   var MOODS = ["Excited", "Sweaty", "Overjoyed", "Exhausted", "Starstruck", "Hangry", "Determined", "Giddy", "Overstimulated", "Blissed Out"];
 
