@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sketch Lab Central — drawing &amp; generator prompts</title>
+<meta name="description" content="Sketch Lab Central — a division of Plaid Labs. Daily Doodle, Monster Maker, and Theme Park Edition drawing-prompt generators in one place.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<div id="sl-header-mount"></div>
+
+<main id="app" aria-live="polite">
+  <!-- Populated by assets/engine.js once the default pack loads -->
+</main>
+
+<div id="sl-footer-mount"></div>
+
+<script>
+  // Lightweight pack manifest — just id/label/src, so the header's pack
+  // selector can render instantly. Each pack's actual category data is only
+  // fetched when the user selects it (Theme Park Edition's data set is the
+  // largest, so this keeps first paint fast).
+  window.SL_PACK_LIST = [
+    { id: 'dailydoodle', label: 'Daily Doodle', src: 'assets/packs/dailydoodle.js' },
+    { id: 'monstermaker', label: 'Monster Maker', src: 'assets/packs/monstermaker.js' },
+    { id: 'themepark', label: 'Theme Park Edition', src: 'assets/packs/themepark.js' }
+  ];
+</script>
+<script src="assets/header.js" defer></script>
+<script src="assets/footer.js" defer></script>
+<script src="assets/holiday-data.js" defer></script>
+<script src="assets/engine.js" defer></script>
+<script defer>
+  document.addEventListener('DOMContentLoaded', function () {
+    // Daily Doodle is the main/landing theme pack of Sketch Lab Central.
+    window.SL_boot('dailydoodle');
+  });
+</script>
+
+</body>
+</html>
