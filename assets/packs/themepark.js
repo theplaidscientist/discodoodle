@@ -92,6 +92,7 @@
   var toggledParks = {}; // parkName -> bool
   ALL_PARKS.forEach(function (p) { toggledParks[p] = (p === 'Magic Kingdom'); }); // sensible default: one park on
   var bonkers = false;
+  var preBonkersParks = null;
 
   function brandOf(park) { return DISNEY_PARKS.indexOf(park) !== -1 ? 'disney' : 'universal'; }
   function toggledOfBrand(brand) { return ALL_PARKS.filter(function (p) { return toggledParks[p] && brandOf(p) === brand; }); }
@@ -171,14 +172,18 @@
       bonkersBtn.addEventListener('click', function () {
         bonkers = !bonkers;
         if (bonkers) {
+          preBonkersParks = {};
+          ALL_PARKS.forEach(function (p) { preBonkersParks[p] = toggledParks[p]; });
           ALL_PARKS.forEach(function (p) { toggledParks[p] = true; });
+        } else if (preBonkersParks) {
+          ALL_PARKS.forEach(function (p) { toggledParks[p] = preBonkersParks[p]; });
+          preBonkersParks = null;
         }
         refreshPools();
         renderExtraControls(container, rerenderColumns);
         if (rerenderColumns) rerenderColumns(bonkers);
       });
     }
-  }
 
   window.SL_registerPack({
     id: 'themepark',
