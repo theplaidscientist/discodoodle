@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sketch Lab Gallery — Admin</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/svg+xml" href="https://fonts.gstatic.com/s/i/short-term/release/materialsymbolsoutlined/experiment/default/24px.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+<style>
+  body { font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, sans-serif; }
+  .wall-title, #sl-header .sl-brand { font-family: 'Russo One', sans-serif; }
+  .wall-title { font-size: 24px; font-weight: 400; margin: 1rem 0 0; text-align: center; }
+  .wall-sub { text-align: center; font-size: 13px; color: var(--text-secondary); max-width: 480px; margin: 8px auto 1.5rem; }
+  .section-heading { font-family: 'Russo One', sans-serif; font-weight: 400; font-size: 18px; max-width: 900px; margin: 2rem auto 0.75rem; padding: 0 4px; }
+
+  #signin-section {
+    max-width: 360px; margin: 2rem auto; background: var(--surface-2);
+    border: 0.5px solid var(--border); border-radius: 12px; padding: 1.25rem;
+  }
+  #signin-section .field { margin-bottom: 12px; }
+  #signin-section label { display: block; font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; }
+  #signin-section input {
+    width: 100%; font-size: 14px; padding: 10px; min-height: 44px; box-sizing: border-box;
+    border: 0.5px solid var(--border); border-radius: var(--radius);
+    background: var(--surface-1); color: var(--text-primary);
+  }
+  #signin-btn {
+    width: 100%; border: none; background: var(--accent); color: var(--accent-contrast);
+    border-radius: var(--radius); padding: 12px; font-size: 15px; font-weight: 600;
+    cursor: pointer; min-height: 48px;
+  }
+  #signin-feedback { font-size: 13px; margin-top: 10px; text-align: center; min-height: 18px; color: #b3261e; }
+
+  #admin-bar { display: flex; justify-content: space-between; align-items: center; max-width: 900px; margin: 0 auto 1rem; padding: 0 4px; }
+  #admin-bar span { font-size: 13px; color: var(--text-secondary); }
+  #signout-btn {
+    border: 0.5px solid var(--border); background: var(--surface-2); color: var(--text-primary);
+    border-radius: var(--radius); padding: 8px 14px; font-size: 13px; cursor: pointer; min-height: 44px;
+  }
+
+  #pending-grid, #approved-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px; max-width: 900px; margin: 0 auto 2rem;
+  }
+  .pend-card {
+    background: var(--surface-2); border: 0.5px solid var(--border); border-radius: 10px; overflow: hidden;
+  }
+  .pend-card img { width: 100%; height: 180px; object-fit: cover; display: block; background: var(--surface-1); }
+  .pend-meta { padding: 8px 10px; font-size: 12px; color: var(--text-secondary); }
+  .pend-meta strong { color: var(--text-primary); }
+  .pend-actions { display: flex; gap: 8px; padding: 0 10px 10px; }
+  .pend-actions button {
+    flex: 1; min-height: 44px; border-radius: var(--radius); font-size: 13px; font-weight: 600;
+    cursor: pointer; border: none;
+  }
+  .approve-btn { background: #1e7d32; color: #fff; }
+  .reject-btn, .remove-btn { background: var(--surface-1); color: #b3261e; border: 0.5px solid #b3261e !important; }
+  .pend-actions button:disabled { opacity: 0.5; cursor: default; }
+  .wall-empty, .wall-loading { text-align: center; color: var(--text-secondary); font-size: 13px; padding: 2rem 0; grid-column: 1/-1; }
+</style>
+</head>
+<body>
+
+<div id="sl-header-mount"></div>
+
+<main>
+  <h1 class="wall-title">🛠️ Sketch Lab Gallery — Admin</h1>
+  <p class="wall-sub">Private moderation page. Sign in to review pending submissions and manage what's live in the gallery.</p>
+
+  <section id="signin-section">
+    <form id="signin-form">
+      <div class="field">
+        <label for="admin-email">Email</label>
+        <input type="email" id="admin-email" autocomplete="username" required>
+      </div>
+      <div class="field">
+        <label for="admin-password">Password</label>
+        <input type="password" id="admin-password" autocomplete="current-password" required>
+      </div>
+      <button type="submit" id="signin-btn">Sign in</button>
+      <p id="signin-feedback"></p>
+    </form>
+  </section>
+
+  <div id="admin-bar" style="display:none;">
+    <span id="admin-email-display"></span>
+    <button id="signout-btn" type="button">Sign out</button>
+  </div>
+
+  <h2 class="section-heading" id="pending-heading" style="display:none;">Pending review</h2>
+  <div id="pending-grid" style="display:none;"></div>
+
+  <h2 class="section-heading" id="approved-heading" style="display:none;">Live in the gallery</h2>
+  <div id="approved-grid" style="display:none;"></div>
+</main>
+
+<div id="sl-footer-mount"></div>
+
+<script src="../assets/header.js" defer></script>
+<script src="../assets/footer.js" defer></script>
+<script defer>
+(function () {
+  var DB_URL = 'https://daily-doodle-b7c57-default-rtdb.firebaseio.com';
+  // IMPORTANT: fill in your Firebase Web API key (Firebase console → Project
+  // settings → General → "Web API Key"). This is safe to expose publicly —
+  // it identifies the project, it does not grant access on its own.
+  var API_KEY = 'PASTE_YOUR_FIREBASE_WEB_API_KEY_HERE';
+  var AUTH_SIGNIN_URL = 'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=' + API_KEY;
+
+  var idToken = null;
+
+  function $(id) { return document.getElementById(id); }
+
+  function setSignedInUI(email) {
+    $('signin-section').style.display = 'none';
+    $('admin-bar').style.display = 'flex';
+    $('pending-heading').style.display = 'block';
+    $('approved-heading').style.display = 'block';
+    $('pending-grid').style.display = 'grid';
+    $('approved-grid').style.display = 'grid';
+    $('admin-email-display').textContent = 'Signed in as ' + email;
+  }
+
+  function setSignedOutUI() {
+    idToken = null;
+    $('signin-section').style.display = 'block';
+    $('admin-bar').style.display = 'none';
+    $('pending-heading').style.display = 'none';
+    $('approved-heading').style.display = 'none';
+    $('pending-grid').style.display = 'none';
+    $('approved-grid').style.display = 'none';
+    $('pending-grid').innerHTML = '';
+    $('approved-grid').innerHTML = '';
+    $('signin-form').reset();
+  }
+
+  $('signin-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var fb = $('signin-feedback');
+    var btn = $('signin-btn');
+    fb.textContent = '';
+    if (API_KEY.indexOf('PASTE_YOUR') === 0) {
+      fb.textContent = 'This page needs your Firebase Web API key pasted into admin.html first — see FIREBASE-SETUP.md.';
+      return;
+    }
+    var email = $('admin-email').value.trim();
+    var password = $('admin-password').value;
+    btn.disabled = true;
+    btn.textContent = 'Signing in…';
+    fetch(AUTH_SIGNIN_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email, password: password, returnSecureToken: true })
+    })
+      .then(function (res) { return res.json().then(function (data) { return { ok: res.ok, data: data }; }); })
+      .then(function (result) {
+        if (!result.ok) {
+          throw new Error((result.data && result.data.error && result.data.error.message) || 'Sign-in failed');
+        }
+        idToken = result.data.idToken;
+        setSignedInUI(email);
+        loadPending();
+        loadApproved();
+      })
+      .catch(function (err) {
+        console.error('Sign-in failed:', err);
+        fb.textContent = 'Sign-in failed. Check your email and password and try again.';
+      })
+      .finally(function () {
+        btn.disabled = false;
+        btn.textContent = 'Sign in';
+      });
+  });
+
+  $('signout-btn').addEventListener('click', setSignedOutUI);
+
+  function formatDate(ts) {
+    if (!ts) return '';
+    try { return new Date(ts).toLocaleString(); } catch (e) { return ''; }
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  // ---------------- Pending queue ----------------
+  function loadPending() {
+    var grid = $('pending-grid');
+    grid.innerHTML = '<p class="wall-loading">Loading pending submissions…</p>';
+    fetch(DB_URL + '/pendingSubmissions.json?auth=' + idToken)
+      .then(function (res) {
+        if (!res.ok) throw new Error('Could not load submissions (' + res.status + ')');
+        return res.json();
+      })
+      .then(function (data) {
+        var entries = data ? Object.keys(data).map(function (k) { return Object.assign({ id: k }, data[k]); }) : [];
+        entries.sort(function (a, b) { return (a.submittedAt || 0) - (b.submittedAt || 0); });
+        if (entries.length === 0) {
+          grid.innerHTML = '<p class="wall-empty">Nothing pending — you\'re all caught up.</p>';
+          return;
+        }
+        grid.innerHTML = '';
+        entries.forEach(function (entry) { grid.appendChild(buildPendingCard(entry)); });
+      })
+      .catch(function (err) {
+        console.error('Loading pending submissions failed:', err);
+        grid.innerHTML = '<p class="wall-empty">Could not load pending submissions. Try refreshing.</p>';
+      });
+  }
+
+  function buildPendingCard(entry) {
+    var card = document.createElement('div');
+    card.className = 'pend-card';
+
+    var img = document.createElement('img');
+    img.src = entry.imageUrl;
+    img.loading = 'lazy';
+    img.alt = (entry.name || 'Anonymous Artist') + "'s submission";
+    card.appendChild(img);
+
+    var meta = document.createElement('div');
+    meta.className = 'pend-meta';
+    meta.innerHTML = '<strong>' + escapeHtml(entry.name || 'Anonymous Artist') + '</strong><br>' +
+      escapeHtml(entry.pack || 'Sketch Lab') + '<br>Uploaded: ' + formatDate(entry.submittedAt);
+    card.appendChild(meta);
+
+    var actions = document.createElement('div');
+    actions.className = 'pend-actions';
+    var approveBtn = document.createElement('button');
+    approveBtn.className = 'approve-btn';
+    approveBtn.type = 'button';
+    approveBtn.textContent = 'Approve';
+    var rejectBtn = document.createElement('button');
+    rejectBtn.className = 'reject-btn';
+    rejectBtn.type = 'button';
+    rejectBtn.textContent = 'Reject';
+    actions.appendChild(approveBtn);
+    actions.appendChild(rejectBtn);
+    card.appendChild(actions);
+
+    approveBtn.addEventListener('click', function () {
+      setBusy(true);
+      approve(entry)
+        .then(function () {
+          card.remove();
+          maybeShowEmpty($('pending-grid'), 'Nothing pending — you\'re all caught up.');
+          loadApproved();
+        })
+        .catch(function (err) {
+          console.error('Approve failed:', err);
+          alert('Could not approve this submission. Please try again.');
+          setBusy(false);
+        });
+    });
+
+    rejectBtn.addEventListener('click', function () {
+      if (!confirm('Reject and delete this submission?')) return;
+      setBusy(true);
+      reject(entry)
+        .then(function () {
+          card.remove();
+          maybeShowEmpty($('pending-grid'), 'Nothing pending — you\'re all caught up.');
+        })
+        .catch(function (err) {
+          console.error('Reject failed:', err);
+          alert('Could not reject this submission. Please try again.');
+          setBusy(false);
+        });
+    });
+
+    function setBusy(busy) {
+      approveBtn.disabled = busy;
+      rejectBtn.disabled = busy;
+    }
+
+    return card;
+  }
+
+  function maybeShowEmpty(grid, message) {
+    if (!grid.querySelector('.pend-card')) {
+      grid.innerHTML = '<p class="wall-empty">' + message + '</p>';
+    }
+  }
+
+  function approve(entry) {
+    var payload = {
+      name: entry.name || 'Anonymous Artist',
+      pack: entry.pack || 'Sketch Lab',
+      imageUrl: entry.imageUrl,
+      storagePath: entry.storagePath || null,
+      submittedAt: entry.submittedAt || null,
+      licenseAgreed: entry.licenseAgreed || false,
+      approvedAt: Date.now()
+    };
+    return fetch(DB_URL + '/approvedWall/' + entry.id + '.json?auth=' + idToken, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    }).then(function (res) {
+      if (!res.ok) throw new Error('Approve write failed (' + res.status + ')');
+      return fetch(DB_URL + '/pendingSubmissions/' + entry.id + '.json?auth=' + idToken, { method: 'DELETE' });
+    }).then(function (res) {
+      if (!res.ok) throw new Error('Cleanup delete failed (' + res.status + ')');
+    });
+  }
+
+  function reject(entry) {
+    // Removes the pending record. The uploaded image is left in Storage
+    // under pending/ — a small number of orphaned rejected images is a
+    // fine trade-off for not adding a second REST auth scheme here; clear
+    // them out occasionally from the Firebase console if it bothers you.
+    return fetch(DB_URL + '/pendingSubmissions/' + entry.id + '.json?auth=' + idToken, { method: 'DELETE' })
+      .then(function (res) {
+        if (!res.ok) throw new Error('Reject delete failed (' + res.status + ')');
+      });
+  }
+
+  // ---------------- Live in the gallery (with pull-down) ----------------
+  function loadApproved() {
+    var grid = $('approved-grid');
+    grid.innerHTML = '<p class="wall-loading">Loading the live gallery…</p>';
+    fetch(DB_URL + '/approvedWall.json?auth=' + idToken)
+      .then(function (res) {
+        if (!res.ok) throw new Error('Could not load the gallery (' + res.status + ')');
+        return res.json();
+      })
+      .then(function (data) {
+        var entries = data ? Object.keys(data).map(function (k) { return Object.assign({ id: k }, data[k]); }) : [];
+        entries.sort(function (a, b) { return (b.submittedAt || 0) - (a.submittedAt || 0); });
+        if (entries.length === 0) {
+          grid.innerHTML = '<p class="wall-empty">Nothing live yet.</p>';
+          return;
+        }
+        grid.innerHTML = '';
+        entries.forEach(function (entry) { grid.appendChild(buildApprovedCard(entry)); });
+      })
+      .catch(function (err) {
+        console.error('Loading the live gallery failed:', err);
+        grid.innerHTML = '<p class="wall-empty">Could not load the live gallery. Try refreshing.</p>';
+      });
+  }
+
+  function buildApprovedCard(entry) {
+    var card = document.createElement('div');
+    card.className = 'pend-card';
+
+    var img = document.createElement('img');
+    img.src = entry.imageUrl;
+    img.loading = 'lazy';
+    img.alt = (entry.name || 'Anonymous Artist') + "'s submission";
+    card.appendChild(img);
+
+    var meta = document.createElement('div');
+    meta.className = 'pend-meta';
+    meta.innerHTML = '<strong>' + escapeHtml(entry.name || 'Anonymous Artist') + '</strong><br>' +
+      escapeHtml(entry.pack || 'Sketch Lab') + '<br>Uploaded: ' + formatDate(entry.submittedAt);
+    card.appendChild(meta);
+
+    var actions = document.createElement('div');
+    actions.className = 'pend-actions';
+    var removeBtn = document.createElement('button');
+    removeBtn.className = 'remove-btn';
+    removeBtn.type = 'button';
+    removeBtn.textContent = 'Pull down';
+    actions.appendChild(removeBtn);
+    card.appendChild(actions);
+
+    removeBtn.addEventListener('click', function () {
+      if (!confirm('Remove this piece from the live gallery? It will no longer be visible to visitors.')) return;
+      removeBtn.disabled = true;
+      fetch(DB_URL + '/approvedWall/' + entry.id + '.json?auth=' + idToken, { method: 'DELETE' })
+        .then(function (res) {
+          if (!res.ok) throw new Error('Remove failed (' + res.status + ')');
+          card.remove();
+          maybeShowEmpty($('approved-grid'), 'Nothing live yet.');
+        })
+        .catch(function (err) {
+          console.error('Remove failed:', err);
+          alert('Could not remove this piece. Please try again.');
+          removeBtn.disabled = false;
+        });
+    });
+
+    return card;
+  }
+})();
+</script>
+
+</body>
+</html>
