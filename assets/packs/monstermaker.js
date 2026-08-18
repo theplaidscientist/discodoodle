@@ -31,6 +31,14 @@
     vibe: {
       label: "Vibe", icon: "🎭",
       items: ["Silly", "Scary", "Sleepy", "Grumpy", "Curious", "Mischievous", "Majestic", "Shy", "Hyper", "Chill"]
+    },
+    // A "what's it holding" category, added specifically so the Holiday
+    // Overlay has something to swap in Beginner Mode — Halloween/Christmas
+    // items (candy corn, ornaments, etc.) take over this list entirely
+    // when an overlay is active, same as Daily Doodle's Prop category.
+    prop: {
+      label: "Holding", icon: "🎁",
+      items: ["Slime Ball", "Squishy Toy", "Bug Snack", "Rubber Duck", "Mystery Potion", "Old Sock", "Shiny Rock", "Broken Umbrella", "Half-Eaten Sandwich", "Glowing Orb"]
     }
   };
 
@@ -47,6 +55,7 @@
     if (active.indexOf('pattern') !== -1) bodyBits.push('a ' + wrap(result.pattern) + ' pattern');
     if (active.indexOf('armStyle') !== -1) bodyBits.push(wrap(result.armStyle) + ' for arms');
     if (active.indexOf('eyestalks') !== -1 && result.eyestalks === 'Yes') bodyBits.push('wiggly eyestalks');
+    if (active.indexOf('prop') !== -1) bodyBits.push('holding a ' + wrap(result.prop));
 
     var tailBits = [];
     if (active.indexOf('vibe') !== -1) tailBits.push('totally ' + wrap(result.vibe));
@@ -72,12 +81,12 @@
     instruction: 'Add your own items, then hit spin.',
     accent: { accent: '#3d4322', accentContrast: '#ffffff', accentSoft: '#e3e8cf' },
     categories: categories,
-    coreKeys: ['eyeballs', 'horns', 'skinTexture'],
+    coreKeys: ['eyeballs', 'horns', 'skinTexture', 'prop'],
     buildSentence: buildSentence,
     wordmark: 'MONSTER MAKER',
     bgColor: '#6f7a3f',
     watermark: 'Sketch Lab Central — Monster Maker',
     resultLabel: 'Sketch Idea',
-    holidayMap: { outfit: null, snack: null }
+    holidayMap: { outfit: null, snack: null, prop: 'prop' }
   });
 })();
