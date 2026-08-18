@@ -117,9 +117,15 @@
 <script defer>
 (function () {
   var DB_URL = 'https://daily-doodle-b7c57-default-rtdb.firebaseio.com';
-  // Firebase Storage bucket (confirmed via the project's firebaseConfig).
-  var STORAGE_BUCKET = 'daily-doodle-b7c57.firebasestorage.app';
-  var STORAGE_BASE = 'https://firebasestorage.googleapis.com/v0/b/' + STORAGE_BUCKET + '/o';
+  // Images are hosted on Cloudinary's free tier instead of Firebase
+  // Storage — Firebase Storage now requires the paid Blaze plan, and
+  // Cloudinary's free plan has no billing method attached, so it is
+  // structurally impossible for image hosting to ever generate a bill.
+  // PASTE_YOUR_CLOUDINARY_CLOUD_NAME and PASTE_YOUR_UPLOAD_PRESET come
+  // from the Cloudinary dashboard — see FIREBASE-SETUP.md step 1.
+  var CLOUDINARY_CLOUD_NAME = 'hcfxq8wa';
+  var CLOUDINARY_UPLOAD_PRESET = 'sketchlab';
+  var CLOUDINARY_UPLOAD_URL = 'https://api.cloudinary.com/v1_1/' + CLOUDINARY_CLOUD_NAME + '/image/upload';
   var MAX_DIMENSION = 1000;
   var JPEG_QUALITY = 0.82;
 
@@ -149,18 +155,25 @@
   }
 
   function uploadImage(blob) {
-    var path = 'pending/' + Date.now() + '-' + Math.random().toString(36).slice(2, 8) + '.jpg';
-    var encodedPath = encodeURIComponent(path);
-    return fetch(STORAGE_BASE + '?name=' + encodedPath, {
+    var formData = new FormData();
+    formData.append('file', blob);
+    formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+    formData.append('folder', 'pending');
+    return fetch(CLOUDINARY_UPLOAD_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'image/jpeg' },
-      body: blob
+      body: formData
+    }).catch(function () {
+      throw new Error('Image upload request never reached the server (network issue) — please check your connection and try again.');
     }).then(function (res) {
-      if (!res.ok) throw new Error('Upload failed (' + res.status + ')');
+      if (!res.ok) {
+        return res.json().catch(function () { return {}; }).then(function (errData) {
+          var detail = errData && errData.error && errData.error.message ? ': ' + errData.error.message : '';
+          throw new Error('Image upload was rejected (' + res.status + ')' + detail + ' — check the Cloudinary upload preset settings.');
+        });
+      }
       return res.json();
     }).then(function (data) {
-      var downloadURL = STORAGE_BASE + '/' + encodedPath + '?alt=media&token=' + data.downloadTokens;
-      return { path: path, downloadURL: downloadURL };
+      return { path: data.public_id, downloadURL: data.secure_url };
     });
   }
 
@@ -169,8 +182,10 @@
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(entry)
+    }).catch(function () {
+      throw new Error('Saving the submission details never reached the server (network or CORS issue).');
     }).then(function (res) {
-      if (!res.ok) throw new Error('Could not save submission (' + res.status + ')');
+      if (!res.ok) throw new Error('Saving the submission was rejected (' + res.status + ') — check Realtime Database rules.');
       return res.json();
     });
   }
