@@ -157,6 +157,7 @@
         '<label class="repeat-toggle"><input type="checkbox" id="avoid-repeats"' + (avoidRepeats ? ' checked' : '') + '> Avoid repeats until all shown</label>' +
         '<button id="sound-toggle" class="sound-btn' + (soundEnabled ? '' : ' muted') + '" aria-pressed="' + soundEnabled + '" aria-label="Toggle sound effects">' + (soundEnabled ? '🔊' : '🔇') + ' Sound</button>' +
         '<button id="cat-toggle-btn" class="cat-toggle-btn" aria-expanded="false">✏️ Edit Categories</button>' +
+        '<button id="holiday-toggle-btn" class="pill-btn" type="button">🎃🎄 Holiday overlay</button>' +
       '</div>' +
       '<div id="categories-panel-wrap">' +
         '<div id="pack-extra-controls"></div>' +
@@ -225,6 +226,9 @@
       var open = panel.classList.toggle('open');
       catBtn.classList.toggle('open', open);
       catBtn.setAttribute('aria-expanded', String(open));
+    });
+    document.getElementById('holiday-toggle-btn').addEventListener('click', function () {
+      window.SL_openCategoriesPanel({ scrollToHoliday: true });
     });
     document.querySelectorAll('#holiday-toggle-row .holiday-chip').forEach(function (btn) {
       btn.addEventListener('click', function () {
