@@ -46,7 +46,12 @@
   .pend-card {
     background: var(--surface-2); border: 0.5px solid var(--border); border-radius: 10px; overflow: hidden;
   }
-  .pend-card img { width: 100%; height: 180px; object-fit: cover; display: block; background: var(--surface-1); }
+  /* object-fit: contain (not cover) is intentional here — this is a
+     moderation view, so the full uploaded image must always be visible,
+     never cropped, so nothing hidden outside a crop box can slip through
+     unseen. max-height (not a fixed height) lets tall/odd-shaped images
+     still show completely instead of being squeezed or cut off. */
+  .pend-card img { width: 100%; max-height: 420px; object-fit: contain; display: block; background: var(--surface-1); cursor: zoom-in; }
   .pend-meta { padding: 8px 10px; font-size: 12px; color: var(--text-secondary); }
   .pend-meta strong { color: var(--text-primary); }
   .pend-actions { display: flex; gap: 8px; padding: 0 10px 10px; }
@@ -240,6 +245,11 @@
     img.src = entry.imageUrl;
     img.loading = 'lazy';
     img.alt = (entry.name || 'Anonymous Artist') + "'s submission";
+    img.title = 'Click to open full size in a new tab';
+    // Extra safety net on top of showing the full (uncropped) thumbnail:
+    // opens the original file at full native resolution, in case
+    // anything is still hard to make out at the card's display size.
+    img.addEventListener('click', function () { window.open(entry.imageUrl, '_blank'); });
     card.appendChild(img);
 
     var meta = document.createElement('div');
@@ -379,6 +389,11 @@
     img.src = entry.imageUrl;
     img.loading = 'lazy';
     img.alt = (entry.name || 'Anonymous Artist') + "'s submission";
+    img.title = 'Click to open full size in a new tab';
+    // Extra safety net on top of showing the full (uncropped) thumbnail:
+    // opens the original file at full native resolution, in case
+    // anything is still hard to make out at the card's display size.
+    img.addEventListener('click', function () { window.open(entry.imageUrl, '_blank'); });
     card.appendChild(img);
 
     var meta = document.createElement('div');
