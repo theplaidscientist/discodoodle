@@ -88,26 +88,40 @@
     applyAccent(hc || pack.accent);
   }
 
+  // Which pack.categories key each holidayMap field points at, which
+  // SL_HOLIDAY_DATA list feeds it, and whether the swap fully replaces the
+  // category's normal items or just blends holiday items into them.
+  // "prop" is a full replace (like outfit) specifically so it shows up as a
+  // real, noticeable change in Beginner Mode — a partial blend would mostly
+  // still show non-holiday items, which is exactly the "overlays don't
+  // change beginner mode" complaint this was added to fix.
+  var HOLIDAY_SWAP_FIELDS = {
+    outfit: { dataKey: 'costumes', mode: 'replace' },
+    snack: { dataKey: 'snacks', mode: 'concat' },
+    prop: { dataKey: 'props', mode: 'replace' }
+  };
+
   function swapHolidayCategoryContent(pack, newHoliday) {
     if (!pack || !pack.holidayMap) return;
     var backup = holidayBackup[pack.id] || (holidayBackup[pack.id] = {});
-    var outfitKey = pack.holidayMap.outfit;
-    var snackKey = pack.holidayMap.snack;
 
-    // Revert previous overlay first (if any)
-    if (outfitKey && backup[outfitKey]) { pack.categories[outfitKey].items = backup[outfitKey]; delete backup[outfitKey]; }
-    if (snackKey && backup[snackKey]) { pack.categories[snackKey].items = backup[snackKey]; delete backup[snackKey]; }
+    // Revert every previously-swapped category first (if any).
+    Object.keys(HOLIDAY_SWAP_FIELDS).forEach(function (field) {
+      var key = pack.holidayMap[field];
+      if (key && backup[key]) { pack.categories[key].items = backup[key]; delete backup[key]; }
+    });
 
     if (newHoliday === 'none') return;
     var data = window.SL_HOLIDAY_DATA[newHoliday];
-    if (outfitKey && pack.categories[outfitKey]) {
-      backup[outfitKey] = pack.categories[outfitKey].items;
-      pack.categories[outfitKey].items = data.costumes.slice();
-    }
-    if (snackKey && pack.categories[snackKey]) {
-      backup[snackKey] = pack.categories[snackKey].items;
-      pack.categories[snackKey].items = backup[snackKey].concat(data.snacks);
-    }
+    Object.keys(HOLIDAY_SWAP_FIELDS).forEach(function (field) {
+      var key = pack.holidayMap[field];
+      if (!key || !pack.categories[key]) return;
+      var cfg = HOLIDAY_SWAP_FIELDS[field];
+      backup[key] = pack.categories[key].items;
+      pack.categories[key].items = cfg.mode === 'replace'
+        ? data[cfg.dataKey].slice()
+        : backup[key].concat(data[cfg.dataKey]);
+    });
   }
 
   function setHoliday(newHoliday) {
