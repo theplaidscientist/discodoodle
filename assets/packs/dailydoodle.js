@@ -78,6 +78,6 @@
     bgColor: '#edeff2',
     watermark: 'Sketch Lab Central — Daily Doodle',
     resultLabel: 'Sketch Idea',
-    holidayMap: { outfit: 'outfit', snack: null }
+    holidayMap: { outfit: 'outfit', snack: null, prop: 'prop' }
   });
 })();
