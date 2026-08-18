@@ -120,6 +120,12 @@ h1.pack-title {
 }
 .mode-btn.active { background: var(--accent); color: var(--accent-contrast); border-color: var(--accent); }
 
+.cat-hint {
+  text-align: center; font-size: 12px; color: var(--text-secondary);
+  max-width: 480px; margin: 6px auto 0; line-height: 1.4;
+}
+.cat-hint strong { color: var(--text-primary); }
+
 .settings-row {
   display: flex; justify-content: center; align-items: center;
   gap: 10px; flex-wrap: wrap; margin-bottom: 1rem;
@@ -137,7 +143,16 @@ h1.pack-title {
   min-height: 36px;
 }
 .sound-btn.muted { opacity: 0.55; }
-.cat-toggle-btn.open { background: var(--accent); color: var(--accent-contrast); border-color: var(--accent); }
+/* Given its own dashed-border treatment (same visual language as Bonkers
+   Mode) so it reads as "tap to customize," not just another minor toggle —
+   this is the button people miss when they don't realize categories are
+   editable, per user feedback. */
+.cat-toggle-btn {
+  border: 1.5px dashed var(--accent);
+  color: var(--accent);
+  font-weight: 600;
+}
+.cat-toggle-btn.open { background: var(--accent); color: var(--accent-contrast); border-style: solid; }
 
 /* ---------- Result cards ---------- */
 #result-row {
