@@ -42,6 +42,7 @@
         '© 2026 Andy Schelb — code MIT, content CC BY-NC 4.0' +
         '<br>' +
         '<a href="https://theplaidscientist.github.io/sketchlabcentral/wall/" class="holiday-chip">🖼️ Sketch Lab Gallery</a> ' +
+        '<a href="https://theplaidscientist.github.io/sketchlabcentral/wall/submit.html" class="holiday-chip">🎨 Share Your Art</a> ' +
         (hasHolidayOverlay
           ? '<button id="holiday-footer-btn" class="holiday-chip" type="button" ' +
             'aria-label="Holiday overlay settings" title="Holiday overlay">🎃🎄 Holiday overlay</button>'
