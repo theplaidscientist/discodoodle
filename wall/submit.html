@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Share Your Art — Sketch Lab Central</title>
+<meta name="description" content="Submit your art inspired by Sketch Lab Central's drawing prompts to the Sketch Lab Gallery.">
+<link rel="icon" type="image/svg+xml" href="https://fonts.gstatic.com/s/i/short-term/release/materialsymbolsoutlined/experiment/default/24px.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+<style>
+  body { font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, sans-serif; }
+  .wall-title, h1.pack-title, #sl-header .sl-brand { font-family: 'Russo One', sans-serif; }
+  .wall-title { font-size: 28px; font-weight: 400; margin: 1rem 0 0; text-align: center; letter-spacing: 0.02em; }
+  .wall-sub { text-align: center; font-size: 15px; color: var(--text-secondary); max-width: 480px; margin: 8px auto 1.5rem; }
+  .view-gallery-link { display: block; text-align: center; font-size: 12px; color: var(--text-secondary); text-decoration: underline; text-underline-offset: 2px; margin: -0.5rem 0 1.5rem; }
+  .view-gallery-link:hover { color: var(--accent); }
+
+  #submit-section {
+    max-width: 520px; margin: 0 auto 2rem; background: var(--surface-2);
+    border: 0.5px solid var(--border); border-radius: 12px; padding: 1rem 1.25rem 1.25rem;
+  }
+  #submit-section h2 { font-family: 'Russo One', sans-serif; font-weight: 400; font-size: 18px; margin: 0 0 6px; }
+  #submit-section .guidelines { font-size: 12px; color: var(--text-secondary); margin: 0 0 14px; line-height: 1.5; }
+  .field { margin-bottom: 12px; }
+  .field label { display: block; font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; }
+  .field input[type="text"], .field select {
+    width: 100%; font-size: 14px; padding: 10px; min-height: 44px;
+    border: 0.5px solid var(--border); border-radius: var(--radius);
+    background: var(--surface-1); color: var(--text-primary);
+  }
+  .field input[type="file"] { width: 100%; font-size: 13px; }
+  .field-check .check-label { display: flex; align-items: flex-start; gap: 8px; cursor: pointer; }
+  .field-check input[type="checkbox"] { width: 18px; height: 18px; min-width: 18px; margin-top: 1px; }
+  .field-check span { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
+  .field-hp { position: absolute; left: -9999px; top: -9999px; }
+
+  .pill-cta-wrap { display: flex; justify-content: center; margin-top: 4px; }
+  #submit-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    border: none; background: var(--accent); color: var(--accent-contrast);
+    border-radius: 999px; padding: 14px 30px; font-size: 15px; font-weight: 700;
+    cursor: pointer; min-height: 48px;
+  }
+  #submit-btn:hover { filter: brightness(1.08); }
+  #submit-btn:disabled { opacity: 0.6; cursor: default; }
+  #submit-feedback { font-size: 13px; margin-top: 10px; text-align: center; min-height: 18px; }
+  #submit-feedback.ok { color: #1e7d32; }
+  #submit-feedback.err { color: #b3261e; }
+  #image-preview { max-width: 100%; max-height: 220px; border-radius: var(--radius); margin-top: 8px; display: none; }
+</style>
+</head>
+<body>
+
+<div id="sl-header-mount"></div>
+
+<main>
+  <h1 class="wall-title">🎨 Share Your Art</h1>
+  <p class="wall-sub">We'd love to see your doodles and think others would like to see them too!</p>
+  <a href="index.html" class="view-gallery-link">🖼️ View the Gallery</a>
+
+  <section id="submit-section">
+    <h2>Submit your art</h2>
+    <p class="guidelines">Keep it kid-friendly and be kind — this gallery is for everyone. All submissions are manually reviewed by a human before they appear, so it may take a little while. No account or sign-in needed.</p>
+    <form id="submit-form">
+      <div class="field">
+        <label for="art-file">Photo of your art</label>
+        <input type="file" id="art-file" accept="image/*" required>
+        <img id="image-preview" alt="Preview of your selected art">
+      </div>
+      <div class="field">
+        <label for="art-name">Your name or nickname (optional)</label>
+        <input type="text" id="art-name" maxlength="40" placeholder="e.g. Ava, age 9">
+      </div>
+      <div class="field">
+        <label for="art-pack">Which pack inspired it?</label>
+        <select id="art-pack">
+          <option value="Daily Doodle">Daily Doodle</option>
+          <option value="Monster Maker">Monster Maker</option>
+          <option value="Theme Park Edition">Theme Park Edition</option>
+          <option value="Something else">Something else</option>
+        </select>
+      </div>
+      <div class="field field-check">
+        <label class="check-label">
+          <input type="checkbox" id="art-license-agree" required>
+          <span>It's mine to share, and I'm okay with Sketch Lab Central showing it here and featuring it on social media. I'm not giving up ownership — just permission to display and share it.</span>
+        </label>
+      </div>
+      <!-- Honeypot: invisible to real visitors, but simple bots that
+           auto-fill every field will trip it. Never shown, never required. -->
+      <div class="field field-hp" aria-hidden="true">
+        <label for="art-website">Leave this field blank</label>
+        <input type="text" id="art-website" name="website" tabindex="-1" autocomplete="off">
+      </div>
+      <div class="pill-cta-wrap">
+        <button type="submit" id="submit-btn">Share with us 🎨</button>
+      </div>
+      <p id="submit-feedback"></p>
+    </form>
+  </section>
+</main>
+
+<div id="sl-footer-mount"></div>
+
+<script src="../assets/header.js" defer></script>
+<script src="../assets/footer.js" defer></script>
+<script defer>
+(function () {
+  var DB_URL = 'https://daily-doodle-b7c57-default-rtdb.firebaseio.com';
+  // IMPORTANT: verify this matches your project's actual Storage bucket
+  // name (Firebase console → Storage → shown at the top as "gs://...").
+  // Newer Firebase projects sometimes use a "*.firebasestorage.app"
+  // bucket instead of "*.appspot.com" — update this constant if so.
+  var STORAGE_BUCKET = 'daily-doodle-b7c57.appspot.com';
+  var STORAGE_BASE = 'https://firebasestorage.googleapis.com/v0/b/' + STORAGE_BUCKET + '/o';
+  var MAX_DIMENSION = 1000;
+  var JPEG_QUALITY = 0.82;
+
+  function $(id) { return document.getElementById(id); }
+
+  function resizeImage(file) {
+    return createImageBitmap(file).then(function (bitmap) {
+      var w = bitmap.width, h = bitmap.height;
+      var scale = Math.min(1, MAX_DIMENSION / Math.max(w, h));
+      w = Math.round(w * scale);
+      h = Math.round(h * scale);
+      var canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      var ctx = canvas.getContext('2d');
+      ctx.drawImage(bitmap, 0, 0, w, h);
+      return new Promise(function (resolve) {
+        canvas.toBlob(resolve, 'image/jpeg', JPEG_QUALITY);
+      });
+    });
+  }
+
+  function uploadImage(blob) {
+    var path = 'pending/' + Date.now() + '-' + Math.random().toString(36).slice(2, 8) + '.jpg';
+    var encodedPath = encodeURIComponent(path);
+    return fetch(STORAGE_BASE + '?name=' + encodedPath, {
+      method: 'POST',
+      headers: { 'Content-Type': 'image/jpeg' },
+      body: blob
+    }).then(function (res) {
+      if (!res.ok) throw new Error('Upload failed (' + res.status + ')');
+      return res.json();
+    }).then(function (data) {
+      var downloadURL = STORAGE_BASE + '/' + encodedPath + '?alt=media&token=' + data.downloadTokens;
+      return { path: path, downloadURL: downloadURL };
+    });
+  }
+
+  function submitMetadata(entry) {
+    return fetch(DB_URL + '/pendingSubmissions.json', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(entry)
+    }).then(function (res) {
+      if (!res.ok) throw new Error('Could not save submission (' + res.status + ')');
+      return res.json();
+    });
+  }
+
+  var fileInput = $('art-file');
+  var preview = $('image-preview');
+  fileInput.addEventListener('change', function () {
+    var file = fileInput.files && fileInput.files[0];
+    if (!file) { preview.style.display = 'none'; return; }
+    preview.src = URL.createObjectURL(file);
+    preview.style.display = 'block';
+  });
+
+  $('submit-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var fb = $('submit-feedback');
+    var btn = $('submit-btn');
+    fb.className = ''; fb.textContent = '';
+
+    // Bot check — a real visitor never sees or fills this field. If it's
+    // filled, quietly pretend to succeed instead of tipping off the bot.
+    if ($('art-website').value) {
+      fb.className = 'ok';
+      fb.textContent = "Thanks! Your art is awaiting review and will appear once it's approved.";
+      $('submit-form').reset();
+      preview.style.display = 'none';
+      return;
+    }
+
+    var file = fileInput.files && fileInput.files[0];
+    if (!file) { fb.className = 'err'; fb.textContent = 'Please choose an image first.'; return; }
+    if (!$('art-license-agree').checked) {
+      fb.className = 'err';
+      fb.textContent = 'Please check the box confirming it\'s okay to display and share your art.';
+      return;
+    }
+    btn.disabled = true;
+    btn.textContent = 'Uploading…';
+    var uploadedAt = Date.now();
+    resizeImage(file)
+      .then(function (blob) { return uploadImage(blob); })
+      .then(function (uploaded) {
+        return submitMetadata({
+          name: ($('art-name').value || '').trim() || 'Anonymous Artist',
+          pack: $('art-pack').value,
+          imageUrl: uploaded.downloadURL,
+          storagePath: uploaded.path,
+          submittedAt: uploadedAt,
+          licenseAgreed: true,
+          approved: false
+        });
+      })
+      .then(function () {
+        fb.className = 'ok';
+        fb.textContent = "Thanks! Your art is awaiting review and will appear once it's approved.";
+        $('submit-form').reset();
+        preview.style.display = 'none';
+      })
+      .catch(function (err) {
+        console.error('Submission failed:', err);
+        fb.className = 'err';
+        fb.textContent = 'Something went wrong submitting your art. Please try again in a moment.';
+      })
+      .finally(function () {
+        btn.disabled = false;
+        btn.textContent = 'Share with us 🎨';
+      });
+  });
+})();
+</script>
+
+</body>
+</html>
