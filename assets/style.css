@@ -23,7 +23,7 @@
 html { scroll-behavior: smooth; }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   background: var(--surface-0);
   color: var(--text-primary);
   max-width: 760px;
@@ -49,7 +49,7 @@ a { color: inherit; }
   display: flex;
   align-items: center;
   gap: 8px;
-  font-family: 'Anton', sans-serif;
+  font-family: 'Russo One', sans-serif;
   font-size: 20px;
   letter-spacing: 0.02em;
   white-space: nowrap;
@@ -85,7 +85,7 @@ a { color: inherit; }
 
 /* ---------- Page title / result area ---------- */
 h1.pack-title {
-  font-family: 'Anton', sans-serif;
+  font-family: 'Russo One', sans-serif;
   font-size: 30px;
   font-weight: 400;
   letter-spacing: 0.02em;
@@ -285,6 +285,7 @@ h1.pack-title {
   border: 0.5px solid var(--border); background: var(--surface-2);
   border-radius: 999px; padding: 7px 14px; font-size: 12px;
   cursor: pointer; color: var(--text-secondary); min-height: 36px;
+  display: inline-flex; align-items: center; text-decoration: none;
 }
 .holiday-chip.on-halloween { background: #ff8c1a; color: #1a0e00; border-color: #1a0e00; }
 .holiday-chip.on-christmas { background: #b5153b; color: #ffffff; border-color: #0b5c33; }
@@ -305,6 +306,8 @@ h1.pack-title {
 }
 #sl-footer a { text-decoration: underline; text-underline-offset: 2px; }
 #sl-footer .sl-footer-brand { display: block; margin-bottom: 4px; }
+#sl-footer .sl-footer-brand a { font-family: 'Russo One', sans-serif; text-decoration: none; }
+#sl-footer .sl-footer-brand a:hover { text-decoration: underline; }
 
 @media (max-width: 480px) {
   body { padding: 0 0.75rem 1.5rem; }
