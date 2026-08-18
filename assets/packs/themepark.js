@@ -69,6 +69,11 @@
   };
 
   var ACTIONS = ["Eating", "Posing With", "Sharing", "Spilling", "Chasing", "Photographing", "Waiting In Line For", "Hugging", "Guarding", "Savoring"];
+  // Used instead of ACTIONS whenever a holiday overlay is on — the normal
+  // verbs are food-specific ("Eating", "Savoring", "Spilling"), which reads
+  // fine for a snack but not for a Skull or an Ornament. These work for
+  // any object, holiday or not.
+  var HOLIDAY_ACTIONS = ["Holding", "Showing Off", "Admiring", "Carrying", "Posing With", "Guarding"];
   // Outfit is mostly generic (works at any park), except Mickey Ears —
   // that's Disney-branded and should only appear when a Disney park (or
   // Bonkers Mode) is active, same treatment as Character/Snack/Attraction.
@@ -101,8 +106,13 @@
     if (active.indexOf('outfit') !== -1) pieces.push('dressed in ' + wrap(result.outfit));
     if (active.indexOf('mood') !== -1) pieces.push('feeling ' + wrap(result.mood));
     var lead = pieces.join(', ');
-    var verbPhrase = active.indexOf('action') !== -1 ? 'is ' + result.action.toLowerCase() : 'is enjoying';
-    var snackPhrase = active.indexOf('snack') !== -1 ? ('a ' + wrap(result.snack)) : 'a snack';
+    var holidayOn = window.SL_getActiveHoliday && window.SL_getActiveHoliday() !== 'none' && window.SL_getActiveHoliday();
+    // Beginner Mode never has "action" active, so this default is what
+    // actually shows up there — "enjoying" reads fine for a snack, but not
+    // for an Ornament or a Skull, so it switches to "holding" whenever a
+    // holiday overlay has taken over the Snack slot.
+    var verbPhrase = active.indexOf('action') !== -1 ? 'is ' + result.action.toLowerCase() : (holidayOn ? 'is holding' : 'is enjoying');
+    var snackPhrase = active.indexOf('snack') !== -1 ? ('a ' + wrap(result.snack)) : (holidayOn ? 'a treat' : 'a snack');
     var locPhrase = active.indexOf('attraction') !== -1 ? ('at ' + wrap(result.attraction)) : '';
     var sentence = lead + ' ' + verbPhrase + ' ' + snackPhrase;
     if (locPhrase) sentence += ' ' + locPhrase;
@@ -149,15 +159,19 @@
 
   function anyToggled() { return ALL_PARKS.some(function (p) { return toggledParks[p]; }); }
 
-  // Current holiday overlay's snack items (empty array if no overlay active).
-  // Read fresh every time so the Snack pool always reflects the live
-  // overlay state, even after a park toggle rebuilds the pool from scratch.
-  function activeHolidaySnacks() {
+  // Current holiday overlay's prop items (null if no overlay active, meaning
+  // "use the normal Snack pool"). Since Snack is one of the three Beginner
+  // Mode core categories, swapping it entirely — not just blending a few
+  // holiday items in — is what actually makes the overlay show up in
+  // Beginner Mode, not just Advanced. Read fresh every time so the Snack
+  // pool always reflects the live overlay state, even after a park toggle
+  // rebuilds the pool from scratch.
+  function activeHolidayProps() {
     var h = window.SL_getActiveHoliday && window.SL_getActiveHoliday();
     if (h && h !== 'none' && window.SL_HOLIDAY_DATA && window.SL_HOLIDAY_DATA[h]) {
-      return window.SL_HOLIDAY_DATA[h].snacks;
+      return window.SL_HOLIDAY_DATA[h].props.slice();
     }
-    return [];
+    return null;
   }
 
   // Holiday costumes take over Outfit entirely when the overlay is on
@@ -177,7 +191,7 @@
   // swap) because its base content — Mickey Ears or not — already depends
   // on which parks are toggled, same as Snack.
   function refreshPools() {
-    var holidaySnacks = activeHolidaySnacks();
+    var holidayProps = activeHolidayProps();
     var holidayCostumes = activeHolidayCostumes();
     if (holidayCostumes) {
       categories.outfit.items = holidayCostumes;
@@ -185,9 +199,15 @@
       var disneyActive = bonkers || toggledOfBrand('disney').length > 0;
       categories.outfit.items = GENERAL_OUTFITS.concat(disneyActive ? DISNEY_OUTFITS : []);
     }
+    // The Snack slot becomes a general holiday prop when an overlay is on,
+    // so relabel it (and swap Action to holding-appropriate verbs) so the
+    // rest of the UI/sentence doesn't keep calling an Ornament a "snack".
+    categories.snack.label = holidayProps ? 'Holiday Prop' : 'Snack';
+    categories.snack.icon = holidayProps ? '🎁' : '🍿';
+    categories.action.items = holidayProps ? HOLIDAY_ACTIONS.slice() : ACTIONS.slice();
     if (!anyToggled()) {
       categories.character.items = [];
-      categories.snack.items = holidaySnacks.slice();
+      categories.snack.items = holidayProps || [];
       categories.attraction.items = [];
       return;
     }
@@ -196,16 +216,16 @@
       var allChars = DISNEY_CHARACTERS.concat(UNIVERSAL_CHARACTERS);
       ALL_PARKS.forEach(function (p) { if (toggledParks[p]) allChars = allChars.concat(PARK_CHARACTERS[p] || []); });
       categories.character.items = uniq(allChars);
-      categories.snack.items = DISNEY_SNACKS.concat(UNIVERSAL_SNACKS).concat(holidaySnacks);
+      categories.snack.items = holidayProps || DISNEY_SNACKS.concat(UNIVERSAL_SNACKS);
       var allLocs = [];
       ALL_PARKS.forEach(function (p) { if (toggledParks[p]) allLocs = allLocs.concat(PARK_LOCATIONS[p] || []); });
       categories.attraction.items = allLocs;
       return;
     }
     var universe = pickUniverse();
-    if (!universe) { categories.character.items = []; categories.snack.items = holidaySnacks.slice(); categories.attraction.items = []; return; }
+    if (!universe) { categories.character.items = []; categories.snack.items = holidayProps || []; categories.attraction.items = []; return; }
     categories.character.items = charactersForUniverse(universe);
-    categories.snack.items = (universe === 'disney' ? DISNEY_SNACKS.slice() : UNIVERSAL_SNACKS.slice()).concat(holidaySnacks);
+    categories.snack.items = holidayProps || (universe === 'disney' ? DISNEY_SNACKS.slice() : UNIVERSAL_SNACKS.slice());
     categories.attraction.items = locationsForUniverse(universe);
   }
   refreshPools();
