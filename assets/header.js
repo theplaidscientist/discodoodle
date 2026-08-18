@@ -27,9 +27,17 @@
       '<div id="holiday-accent" aria-hidden="true"></div>';
 
     var select = document.getElementById('pack-select');
-    if (select && typeof window.SL_onPackChange === 'function') {
+    if (select) {
       select.addEventListener('change', function (e) {
-        window.SL_onPackChange(e.target.value);
+        if (typeof window.SL_onPackChange === 'function') {
+          // We're on the shell itself — switch packs in place.
+          window.SL_onPackChange(e.target.value);
+        } else {
+          // Standalone page (e.g. the Wall of Art) — jump back to the
+          // shell with that pack pre-selected, so the header never feels
+          // like a dead end.
+          window.location.href = 'https://theplaidscientist.github.io/sketchlabcentral/?pack=' + e.target.value;
+        }
       });
     }
   }
