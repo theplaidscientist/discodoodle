@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sketch Lab Gallery — Sketch Lab Central</title>
+<meta name="description" content="Stroll the Sketch Lab Gallery — art made from Sketch Lab Central's drawing prompts, submitted by fellow artists.">
+<link rel="icon" type="image/svg+xml" href="https://fonts.gstatic.com/s/i/short-term/release/materialsymbolsoutlined/experiment/default/24px.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+<style>
+  /* ---- Gallery mode: a dark, moody re-skin so the frames and art pop.
+     Scoped to this page only via a :root override that loads after the
+     shared stylesheet — nothing else in the shell is touched. ---- */
+  :root {
+    --surface-0: #0a0908;
+    --surface-1: #151311;
+    --surface-2: #1d1a17;
+    --text-primary: #f3ede0;
+    --text-secondary: #a89e8c;
+    --text-muted: #756c5d;
+    --border: #322c24;
+    --accent: #c9a464;
+    --accent-contrast: #201607;
+    --accent-soft: #352a17;
+  }
+  body { font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, sans-serif; }
+  .wall-title, h1.pack-title, #sl-header .sl-brand {
+    font-family: 'Russo One', sans-serif;
+  }
+  .wall-title { font-size: 30px; font-weight: 400; margin: 1rem 0 0; text-align: center; letter-spacing: 0.02em; }
+  .wall-sub { text-align: center; font-size: 14px; color: var(--text-secondary); max-width: 480px; margin: 8px auto 1.75rem; }
+
+  /* ---- The Gallery hallway ---- */
+  #gallery-scroll {
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    padding: 40px 16px 16px;
+    margin-bottom: 1.5rem;
+    scrollbar-width: thin;
+    scroll-behavior: auto;
+  }
+  #gallery-track {
+    display: flex;
+    align-items: flex-end;
+    gap: 26px;
+    width: max-content;
+    min-height: 220px;
+  }
+  .wall-loading, .wall-empty { text-align: center; color: var(--text-secondary); font-size: 13px; padding: 2rem 3rem; white-space: normal; }
+
+  .frame-card {
+    flex: 0 0 auto;
+    width: 172px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    outline: none;
+  }
+  .frame-card:nth-child(5n) { transform: translateY(20px) rotate(-2deg); }
+  .frame-card:nth-child(5n+1) { transform: translateY(-8px) rotate(1.5deg); }
+  .frame-card:nth-child(5n+2) { transform: translateY(10px) rotate(-1deg); }
+  .frame-card:nth-child(5n+3) { transform: translateY(-16px) rotate(2deg); }
+  .frame-card:nth-child(5n+4) { transform: translateY(2px) rotate(-1.5deg); }
+
+  .frame {
+    padding: 10px;
+    border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
+    background:
+      radial-gradient(circle at 9px 9px, #241a0c 38%, transparent 40%),
+      radial-gradient(circle at calc(100% - 9px) 9px, #241a0c 38%, transparent 40%),
+      radial-gradient(circle at 9px calc(100% - 9px), #241a0c 38%, transparent 40%),
+      radial-gradient(circle at calc(100% - 9px) calc(100% - 9px), #241a0c 38%, transparent 40%),
+      linear-gradient(135deg, #e0bc7c, #9a7644 45%, #c9a464 70%, #7a5c34);
+    box-shadow:
+      0 14px 24px rgba(0,0,0,.6),
+      inset 0 0 0 3px rgba(255,255,255,.16),
+      inset 0 0 0 6px rgba(50,30,10,.55);
+    transition: transform .2s ease, box-shadow .2s ease;
+  }
+  .frame-card:hover .frame, .frame-card:focus-visible .frame {
+    transform: scale(1.05);
+    box-shadow:
+      0 18px 28px rgba(0,0,0,.65),
+      inset 0 0 0 3px rgba(255,255,255,.2),
+      inset 0 0 0 6px rgba(50,30,10,.6);
+  }
+  .frame-inner {
+    background: #f7f2e6;
+    padding: 6px;
+    border-radius: 245px 10px 215px 10px / 10px 215px 10px 245px;
+  }
+  .frame-inner img {
+    display: block; width: 100%; height: 150px; object-fit: cover;
+    border-radius: 4px; background: #eee;
+  }
+  .frame-card figcaption {
+    margin-top: 10px; font-size: 11px; text-align: center;
+    color: var(--text-secondary); max-width: 172px; line-height: 1.4;
+  }
+
+  /* ---- Share Your Art call-to-action ---- */
+  .pill-cta-wrap { display: flex; justify-content: center; margin: 0.5rem 0 2rem; }
+  .pill-cta {
+    display: inline-flex; align-items: center; gap: 8px;
+    border: none; background: var(--accent); color: var(--accent-contrast);
+    border-radius: 999px; padding: 14px 30px; font-size: 15px; font-weight: 700;
+    cursor: pointer; min-height: 48px; text-decoration: none;
+  }
+  .pill-cta:hover { filter: brightness(1.08); }
+
+  /* ---- Lightbox ---- */
+  #lightbox {
+    position: fixed; inset: 0; background: rgba(4,3,2,.94);
+    display: none; align-items: center; justify-content: center;
+    flex-direction: column; padding: 24px; z-index: 999;
+  }
+  #lightbox.open { display: flex; }
+  #lightbox img { max-width: 90vw; max-height: 78vh; object-fit: contain; border-radius: 6px; box-shadow: 0 20px 40px rgba(0,0,0,.6); }
+  #lightbox-cap { color: #f2ede0; font-size: 13px; margin-top: 14px; text-align: center; max-width: 90vw; }
+  #lightbox-close {
+    position: absolute; top: 16px; right: 16px; min-width: 44px; min-height: 44px;
+    border: none; border-radius: 50%; background: rgba(255,255,255,.15); color: #fff;
+    font-size: 20px; cursor: pointer; line-height: 1;
+  }
+
+  @media (max-width: 480px) {
+    .wall-title { font-size: 22px; }
+    #gallery-track { gap: 18px; min-height: 175px; }
+    .frame-card { width: 128px; }
+    .frame-inner img { height: 110px; }
+    .frame-card:nth-child(5n) { transform: translateY(10px) rotate(-2deg); }
+    .frame-card:nth-child(5n+1) { transform: translateY(-4px) rotate(1.5deg); }
+    .frame-card:nth-child(5n+2) { transform: translateY(6px) rotate(-1deg); }
+    .frame-card:nth-child(5n+3) { transform: translateY(-8px) rotate(2deg); }
+    .frame-card:nth-child(5n+4) { transform: translateY(1px) rotate(-1.5deg); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .frame-card, .frame { transition: none; }
+  }
+</style>
+</head>
+<body>
+
+<div id="sl-header-mount"></div>
+
+<main>
+  <h1 class="wall-title">🖼️ Sketch Lab Gallery</h1>
+  <p class="wall-sub">Gallery scrolls left to right — tap a photo to see it in greater detail.</p>
+
+  <div id="gallery-scroll">
+    <div id="gallery-track">
+      <p class="wall-loading">Loading the gallery…</p>
+    </div>
+  </div>
+
+  <div class="pill-cta-wrap">
+    <a href="submit.html" class="pill-cta">🎨 Share Your Art</a>
+  </div>
+</main>
+
+<div id="sl-footer-mount"></div>
+
+<div id="lightbox" aria-hidden="true">
+  <button id="lightbox-close" type="button" aria-label="Close">✕</button>
+  <img id="lightbox-img" alt="">
+  <p id="lightbox-cap"></p>
+</div>
+
+<script src="../assets/header.js" defer></script>
+<script src="../assets/footer.js" defer></script>
+<script defer>
+(function () {
+  var DB_URL = 'https://daily-doodle-b7c57-default-rtdb.firebaseio.com';
+
+  function $(id) { return document.getElementById(id); }
+
+  function formatDate(ts) {
+    if (!ts) return '';
+    try {
+      return new Date(ts).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+    } catch (e) { return ''; }
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  // ---- Lightbox ----
+  var lightbox = $('lightbox');
+  function openLightbox(entry) {
+    $('lightbox-img').src = entry.imageUrl;
+    $('lightbox-img').alt = (entry.name || 'Anonymous Artist') + "'s " + (entry.pack || 'Sketch Lab') + ' creation';
+    $('lightbox-cap').textContent = (entry.name || 'Anonymous Artist') + ' · ' + (entry.pack || 'Sketch Lab') + ' · ' + formatDate(entry.submittedAt);
+    lightbox.classList.add('open');
+    lightbox.setAttribute('aria-hidden', 'false');
+  }
+  function closeLightbox() {
+    lightbox.classList.remove('open');
+    lightbox.setAttribute('aria-hidden', 'true');
+    $('lightbox-img').src = '';
+  }
+  $('lightbox-close').addEventListener('click', closeLightbox);
+  lightbox.addEventListener('click', function (e) { if (e.target === lightbox) closeLightbox(); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeLightbox(); });
+
+  // ---- The Gallery — approved submissions only, hung hallway-style ----
+  function loadGallery() {
+    var scroll = $('gallery-scroll');
+    var track = $('gallery-track');
+    fetch(DB_URL + '/approvedWall.json')
+      .then(function (res) { return res.json(); })
+      .then(function (data) {
+        var entries = data ? Object.keys(data).map(function (k) { return Object.assign({ id: k }, data[k]); }) : [];
+        entries.sort(function (a, b) { return (b.submittedAt || 0) - (a.submittedAt || 0); });
+        if (entries.length === 0) {
+          track.innerHTML = '<p class="wall-empty">No art in the gallery yet — be the first to submit!</p>';
+          return;
+        }
+        // Duplicate the run once so the hallway can loop seamlessly. The
+        // second copy is hidden from keyboard/screen-reader users (via
+        // aria-hidden + tabindex=-1) so they only ever encounter each
+        // piece once, even though it's visually repeated for sighted users.
+        var loopEntries = entries.length > 2 ? entries.concat(entries) : entries;
+        track.innerHTML = loopEntries.map(function (e, i) {
+          var isDuplicate = i >= entries.length;
+          var caption = escapeHtml(e.name || 'Anonymous Artist') + ' · ' + escapeHtml(e.pack || 'Sketch Lab') + ' · ' + formatDate(e.submittedAt);
+          var alt = escapeHtml((e.name || 'Anonymous Artist') + "'s " + (e.pack || 'Sketch Lab') + ' creation');
+          return (
+            '<figure class="frame-card" tabindex="' + (isDuplicate ? '-1' : '0') + '" ' +
+              (isDuplicate ? 'aria-hidden="true" ' : 'role="button" aria-label="View ' + alt + ' full size" ') +
+              'data-idx="' + i + '">' +
+              '<div class="frame"><div class="frame-inner">' +
+                '<img src="' + e.imageUrl + '" loading="lazy" alt="' + alt + '">' +
+              '</div></div>' +
+              '<figcaption>' + caption + '</figcaption>' +
+            '</figure>'
+          );
+        }).join('');
+
+        track.addEventListener('click', function (e) {
+          var card = e.target.closest('.frame-card');
+          if (card) openLightbox(loopEntries[Number(card.getAttribute('data-idx'))]);
+        });
+        track.addEventListener('keydown', function (e) {
+          if (e.key !== 'Enter' && e.key !== ' ') return;
+          var card = e.target.closest('.frame-card');
+          if (card) { e.preventDefault(); openLightbox(loopEntries[Number(card.getAttribute('data-idx'))]); }
+        });
+
+        if (entries.length > 2) {
+          // Let images lay out before measuring for the loop point.
+          requestAnimationFrame(function () { requestAnimationFrame(function () { startAutoScroll(scroll, track); }); });
+        }
+      })
+      .catch(function (err) {
+        console.error('Gallery load failed:', err);
+        track.innerHTML = '<p class="wall-empty">Could not load the gallery right now. Try refreshing.</p>';
+      });
+  }
+
+  function startAutoScroll(scrollEl, trackEl) {
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var loopWidth = trackEl.scrollWidth / 2;
+    if (!loopWidth || loopWidth < 10) return;
+
+    var SPEED = 26; // pixels per second — a gentle stroll, not a scroll race
+    var paused = false, lastTs = null, resumeTimer = null;
+    // scrollLeft only holds whole pixels, so sub-pixel-per-frame increments
+    // (26px/s at 60fps is ~0.43px/frame) would round away to nothing if we
+    // read it back as our accumulator. Keep the true position as a float
+    // here instead, and write the rounded value out to the DOM each frame.
+    var pos = scrollEl.scrollLeft;
+
+    function step(ts) {
+      if (lastTs == null) lastTs = ts;
+      var dt = ts - lastTs;
+      lastTs = ts;
+      if (!paused) {
+        pos += (SPEED * dt) / 1000;
+        if (pos >= loopWidth) pos -= loopWidth;
+        scrollEl.scrollLeft = pos;
+      }
+      requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+
+    function pause() {
+      paused = true;
+      if (resumeTimer) clearTimeout(resumeTimer);
+    }
+    function scheduleResume() {
+      if (resumeTimer) clearTimeout(resumeTimer);
+      resumeTimer = setTimeout(function () {
+        pos = scrollEl.scrollLeft;
+        paused = false;
+        lastTs = null;
+      }, 2500);
+    }
+    ['pointerdown', 'touchstart', 'wheel'].forEach(function (evt) {
+      scrollEl.addEventListener(evt, pause, { passive: true });
+    });
+    ['pointerup', 'touchend', 'mouseleave'].forEach(function (evt) {
+      scrollEl.addEventListener(evt, scheduleResume, { passive: true });
+    });
+    scrollEl.addEventListener('scroll', function () {
+      if (scrollEl.scrollLeft >= loopWidth) scrollEl.scrollLeft -= loopWidth;
+    }, { passive: true });
+  }
+
+  loadGallery();
+})();
+</script>
+
+</body>
+</html>
