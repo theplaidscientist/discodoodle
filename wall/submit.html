@@ -105,6 +105,13 @@
 
 <div id="sl-footer-mount"></div>
 
+<script>
+  window.SL_PACK_LIST = [
+    { id: 'dailydoodle', label: 'Daily Doodle', src: '../assets/packs/dailydoodle.js' },
+    { id: 'monstermaker', label: 'Monster Maker', src: '../assets/packs/monstermaker.js' },
+    { id: 'themepark', label: 'Theme Park Edition', src: '../assets/packs/themepark.js' }
+  ];
+</script>
 <script src="../assets/header.js" defer></script>
 <script src="../assets/footer.js" defer></script>
 <script defer>
@@ -128,9 +135,16 @@
       canvas.width = w; canvas.height = h;
       var ctx = canvas.getContext('2d');
       ctx.drawImage(bitmap, 0, 0, w, h);
-      return new Promise(function (resolve) {
-        canvas.toBlob(resolve, 'image/jpeg', JPEG_QUALITY);
+      return new Promise(function (resolve, reject) {
+        canvas.toBlob(function (blob) {
+          if (blob) resolve(blob); else reject(new Error('Could not process that image on this device/browser.'));
+        }, 'image/jpeg', JPEG_QUALITY);
       });
+    }).catch(function (err) {
+      // Re-thrown with context so the on-page error message says *where*
+      // it failed, not just "something went wrong" — makes this
+      // self-diagnosable without needing browser dev tools.
+      throw new Error('Could not read that image: ' + (err.message || err));
     });
   }
 
@@ -218,7 +232,11 @@
       .catch(function (err) {
         console.error('Submission failed:', err);
         fb.className = 'err';
-        fb.textContent = 'Something went wrong submitting your art. Please try again in a moment.';
+        // Shows the real reason (e.g. "Upload failed (403)") rather than a
+        // generic message — that status code is usually enough on its own
+        // to tell whether it's a Storage rules issue, a bucket name
+        // mismatch, or something else, without needing dev tools.
+        fb.textContent = 'Something went wrong: ' + (err && err.message ? err.message : 'please try again in a moment.');
       })
       .finally(function () {
         btn.disabled = false;
