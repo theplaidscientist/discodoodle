@@ -19,7 +19,7 @@
 
     mount.innerHTML =
       '<header id="sl-header">' +
-        '<div class="sl-brand"><span class="sl-dot" aria-hidden="true"></span>Sketch Lab Central</div>' +
+        '<div class="sl-brand"><span class="sl-dot" aria-hidden="true">✏️</span>Sketch Lab Central</div>' +
         '<div id="pack-select-wrap">' +
           '<select id="pack-select" aria-label="Choose a generator pack">' + options + '</select>' +
         '</div>' +
