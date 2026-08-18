@@ -151,7 +151,7 @@
           '<button type="button" class="mode-btn' + (mode === 'beginner' ? ' active' : '') + '" data-mode="beginner">Beginner</button>' +
           '<button type="button" class="mode-btn' + (mode === 'advanced' ? ' active' : '') + '" data-mode="advanced">Advanced</button>' +
         '</div>' +
-        '<p class="cat-hint">💡 Advanced also unlocks full editing — tap <strong>Edit Categories</strong> below to add, remove, or customize any list.</p>' +
+        '<p class="cat-hint">💡 Tap <strong>Edit Categories</strong> below for maximum customization — add your own ideas, remove ones you don\'t want, and turn categories on/off.</p>' +
       '</div>' +
       '<div class="settings-row">' +
         '<label class="repeat-toggle"><input type="checkbox" id="avoid-repeats"' + (avoidRepeats ? ' checked' : '') + '> Avoid repeats until all shown</label>' +
