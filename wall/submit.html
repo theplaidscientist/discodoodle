@@ -110,11 +110,8 @@
 <script defer>
 (function () {
   var DB_URL = 'https://daily-doodle-b7c57-default-rtdb.firebaseio.com';
-  // IMPORTANT: verify this matches your project's actual Storage bucket
-  // name (Firebase console → Storage → shown at the top as "gs://...").
-  // Newer Firebase projects sometimes use a "*.firebasestorage.app"
-  // bucket instead of "*.appspot.com" — update this constant if so.
-  var STORAGE_BUCKET = 'daily-doodle-b7c57.appspot.com';
+  // Firebase Storage bucket (confirmed via the project's firebaseConfig).
+  var STORAGE_BUCKET = 'daily-doodle-b7c57.firebasestorage.app';
   var STORAGE_BASE = 'https://firebasestorage.googleapis.com/v0/b/' + STORAGE_BUCKET + '/o';
   var MAX_DIMENSION = 1000;
   var JPEG_QUALITY = 0.82;
