@@ -1,11 +1,12 @@
 /* Sketch Lab Central — universal footer
-   Identical on every page: brand line, GitHub/License/Contact links, exact
-   copyright/license line preserved from the original Plaid Labs footer.
-   Below that, a row of quick links: the three generator packs (skipped on
-   the Gallery page itself, since you're already there — swapped for the
-   pack links instead) and the Gallery/Share links (skipped only on the
-   Gallery page). The Holiday Overlay toggle only shows up on the generator
-   shell, where there's an actual categories panel for it to open. */
+   Truly identical on every page now: brand block, GitHub/License/Contact
+   links, exact copyright/license line preserved from the original Plaid
+   Labs footer, then a row of quick links (the three generator packs on the
+   Gallery page itself, since you're already there — swapped for the pack
+   links instead; the Gallery/Share links everywhere else). The Holiday
+   Overlay toggle used to live here too, but now lives next to "Edit
+   Categories" on the generator pages themselves, so the footer no longer
+   needs to vary page to page at all. */
 (function () {
   // The Plaid Labs "experiment" icon, placed just before "Plaid Labs" any
   // time that name appears. Uses a plain emoji glyph rather than an
@@ -27,12 +28,6 @@
     var mount = document.getElementById('sl-footer-mount');
     if (!mount) return;
 
-    // The shell (Daily Doodle / Monster Maker / Theme Park) is the only
-    // page with a #app mount and an actual categories panel — that's what
-    // gates the Holiday Overlay button. Checked via the DOM rather than a
-    // JS global so it doesn't collide with SL_PACK_LIST, which every page
-    // now carries (so the header's pack dropdown always has all 3 options).
-    var isShell = !!document.getElementById('app');
     // Pages set window.SL_PAGE = 'gallery' to identify themselves, so the
     // footer can skip the self-referential "Sketch Lab Gallery" link when
     // you're already on it, and show pack links instead.
@@ -47,8 +42,8 @@
 
     mount.innerHTML =
       '<footer id="sl-footer">' +
-        '<span class="sl-footer-brand">Sketch Lab Central, a division of ' +
-          '<a href="https://theplaidscientist.github.io/">' + PLAID_ICON + 'Plaid Labs</a></span>' +
+        '<span class="sl-footer-brand">Sketch Lab Central<br>is a division of<br>' +
+          '<a href="https://theplaidscientist.github.io/" class="sl-footer-parent">' + PLAID_ICON + 'Plaid Labs</a></span>' +
         '<a href="https://github.com/theplaidscientist">GitHub</a> · ' +
         '<a href="https://theplaidscientist.github.io/CONTENT-LICENSE.md">License</a> · ' +
         '<a href="#" id="sl-contact-link" rel="nofollow noopener">Contact Us</a>' +
@@ -56,20 +51,7 @@
         '© 2026 Andy Schelb — code MIT, content CC BY-NC 4.0' +
         '<br>' +
         quickLinks +
-        (isShell
-          ? '<button id="holiday-footer-btn" class="holiday-chip" type="button" ' +
-            'aria-label="Holiday overlay settings" title="Holiday overlay">🎃🎄 Holiday overlay</button>'
-          : '') +
       '</footer>';
-
-    var btn = document.getElementById('holiday-footer-btn');
-    if (btn) {
-      btn.addEventListener('click', function () {
-        if (typeof window.SL_openCategoriesPanel === 'function') {
-          window.SL_openCategoriesPanel({ scrollToHoliday: true });
-        }
-      });
-    }
 
     var contactLink = document.getElementById('sl-contact-link');
     if (contactLink) {
