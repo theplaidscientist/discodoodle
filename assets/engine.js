@@ -151,11 +151,12 @@
           '<button type="button" class="mode-btn' + (mode === 'beginner' ? ' active' : '') + '" data-mode="beginner">Beginner</button>' +
           '<button type="button" class="mode-btn' + (mode === 'advanced' ? ' active' : '') + '" data-mode="advanced">Advanced</button>' +
         '</div>' +
+        '<p class="cat-hint">💡 Advanced also unlocks full editing — tap <strong>Edit Categories</strong> below to add, remove, or customize any list.</p>' +
       '</div>' +
       '<div class="settings-row">' +
         '<label class="repeat-toggle"><input type="checkbox" id="avoid-repeats"' + (avoidRepeats ? ' checked' : '') + '> Avoid repeats until all shown</label>' +
         '<button id="sound-toggle" class="sound-btn' + (soundEnabled ? '' : ' muted') + '" aria-pressed="' + soundEnabled + '" aria-label="Toggle sound effects">' + (soundEnabled ? '🔊' : '🔇') + ' Sound</button>' +
-        '<button id="cat-toggle-btn" class="cat-toggle-btn" aria-expanded="false">⚙ Categories</button>' +
+        '<button id="cat-toggle-btn" class="cat-toggle-btn" aria-expanded="false">✏️ Edit Categories</button>' +
       '</div>' +
       '<div id="categories-panel-wrap">' +
         '<div id="pack-extra-controls"></div>' +
