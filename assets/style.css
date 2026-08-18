@@ -55,8 +55,8 @@ a { color: inherit; }
   white-space: nowrap;
 }
 #sl-header .sl-brand .sl-dot {
-  width: 10px; height: 10px; border-radius: 50%;
-  background: var(--accent);
+  font-size: 16px;
+  line-height: 1;
   flex: 0 0 auto;
 }
 #pack-select-wrap { position: relative; }
