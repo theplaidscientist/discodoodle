@@ -652,6 +652,9 @@
 
   // ---------------- Boot ----------------
   window.SL_boot = function (defaultPackId) {
-    loadPack(defaultPackId);
+    var params = new URLSearchParams(window.location.search);
+    var requested = params.get('pack');
+    var valid = (window.SL_PACK_LIST || []).some(function (p) { return p.id === requested; });
+    loadPack(valid ? requested : defaultPackId);
   };
 })();
