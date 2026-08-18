@@ -19,21 +19,18 @@
 
   #signin-section {
     max-width: 360px; margin: 2rem auto; background: var(--surface-2);
-    border: 0.5px solid var(--border); border-radius: 12px; padding: 1.25rem;
+    border: 0.5px solid var(--border); border-radius: 12px; padding: 1.5rem; text-align: center;
   }
-  #signin-section .field { margin-bottom: 12px; }
-  #signin-section label { display: block; font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; }
-  #signin-section input {
-    width: 100%; font-size: 14px; padding: 10px; min-height: 44px; box-sizing: border-box;
-    border: 0.5px solid var(--border); border-radius: var(--radius);
-    background: var(--surface-1); color: var(--text-primary);
-  }
-  #signin-btn {
-    width: 100%; border: none; background: var(--accent); color: var(--accent-contrast);
+  #google-signin-btn {
+    display: inline-flex; align-items: center; gap: 10px; justify-content: center;
+    width: 100%; border: 0.5px solid var(--border); background: var(--surface-1); color: var(--text-primary);
     border-radius: var(--radius); padding: 12px; font-size: 15px; font-weight: 600;
     cursor: pointer; min-height: 48px;
   }
-  #signin-feedback { font-size: 13px; margin-top: 10px; text-align: center; min-height: 18px; color: #b3261e; }
+  #google-signin-btn:hover { background: var(--surface-2); }
+  #google-signin-btn img { width: 18px; height: 18px; }
+  #signin-feedback { font-size: 13px; margin-top: 12px; min-height: 18px; color: #b3261e; }
+  #signin-hint { font-size: 12px; color: var(--text-secondary); margin-top: 10px; line-height: 1.4; }
 
   #admin-bar { display: flex; justify-content: space-between; align-items: center; max-width: 900px; margin: 0 auto 1rem; padding: 0 4px; }
   #admin-bar span { font-size: 13px; color: var(--text-secondary); }
@@ -72,18 +69,17 @@
   <p class="wall-sub">Private moderation page. Sign in to review pending submissions and manage what's live in the gallery.</p>
 
   <section id="signin-section">
-    <form id="signin-form">
-      <div class="field">
-        <label for="admin-email">Email</label>
-        <input type="email" id="admin-email" autocomplete="username" required>
-      </div>
-      <div class="field">
-        <label for="admin-password">Password</label>
-        <input type="password" id="admin-password" autocomplete="current-password" required>
-      </div>
-      <button type="submit" id="signin-btn">Sign in</button>
-      <p id="signin-feedback"></p>
-    </form>
+    <button id="google-signin-btn" type="button">
+      <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
+        <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3c-1.6 4.6-6 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 3l6-6C34.6 5.1 29.6 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21 21-9.4 21-21c0-1.4-.1-2.7-.4-3.5z"/>
+        <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 15.9 18.9 13 24 13c3.1 0 5.8 1.1 8 3l6-6C34.6 5.1 29.6 3 24 3c-7.4 0-13.8 4.2-17 10.3z"/>
+        <path fill="#4CAF50" d="M24 45c5.5 0 10.4-2.1 14.1-5.5l-6.5-5.5C29.6 35.7 26.9 37 24 37c-5.3 0-9.7-3.4-11.3-8.1l-6.5 5C9.9 40.7 16.4 45 24 45z"/>
+        <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.2 4.2-4.1 5.6l6.5 5.5C41.5 36.1 45 30.6 45 24c0-1.4-.1-2.7-.4-3.5z"/>
+      </svg>
+      Sign in with Google
+    </button>
+    <p id="signin-feedback"></p>
+    <p id="signin-hint">Only the Google account whitelisted in the database rules can actually moderate — signing in with any other account will sign in but every action will be rejected.</p>
   </section>
 
   <div id="admin-bar" style="display:none;">
@@ -100,33 +96,85 @@
 
 <div id="sl-footer-mount"></div>
 
+<script>
+  window.SL_PACK_LIST = [
+    { id: 'dailydoodle', label: 'Daily Doodle', src: '../assets/packs/dailydoodle.js' },
+    { id: 'monstermaker', label: 'Monster Maker', src: '../assets/packs/monstermaker.js' },
+    { id: 'themepark', label: 'Theme Park Edition', src: '../assets/packs/themepark.js' }
+  ];
+</script>
 <script src="../assets/header.js" defer></script>
 <script src="../assets/footer.js" defer></script>
-<script defer>
-(function () {
-  var DB_URL = 'https://daily-doodle-b7c57-default-rtdb.firebaseio.com';
-  // Firebase Web API key (Firebase console → Project settings → General →
-  // "Web API Key"). This is safe to expose publicly — it identifies the
-  // project, it does not grant access on its own.
-  var API_KEY = 'AIzaSyAlMStScMvrEGrRgQYiwA20zKYvkRI4ghI';
-  var AUTH_SIGNIN_URL = 'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=' + API_KEY;
 
-  var idToken = null;
+<script type="module">
+  // Firebase Auth's Google sign-in needs the actual SDK (it manages an
+  // OAuth popup + redirect handshake that isn't practical to hand-roll
+  // over plain fetch() the way the rest of this site does). Loaded only
+  // on this private admin page — the public pages stay dependency-free.
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+  import {
+    getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged
+  } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+
+  var DB_URL = 'https://daily-doodle-b7c57-default-rtdb.firebaseio.com';
+  var firebaseConfig = {
+    apiKey: 'AIzaSyAlMStScMvrEGrRgQYiwA20zKYvkRI4ghI',
+    authDomain: 'daily-doodle-b7c57.firebaseapp.com',
+    projectId: 'daily-doodle-b7c57'
+  };
+
+  var app = initializeApp(firebaseConfig);
+  var auth = getAuth(app);
+  var provider = new GoogleAuthProvider();
 
   function $(id) { return document.getElementById(id); }
 
-  function setSignedInUI(email) {
+  // Always grabs a fresh ID token right before each database call, rather
+  // than caching one — Firebase auto-refreshes it under the hood so this
+  // never goes stale even if the tab's been open for a while.
+  function getToken() {
+    if (!auth.currentUser) return Promise.reject(new Error('Not signed in'));
+    return auth.currentUser.getIdToken();
+  }
+
+  $('google-signin-btn').addEventListener('click', function () {
+    var fb = $('signin-feedback');
+    fb.textContent = '';
+    signInWithPopup(auth, provider).catch(function (err) {
+      console.error('Sign-in failed:', err);
+      if (err.code === 'auth/popup-blocked' || err.code === 'auth/popup-closed-by-user') {
+        fb.textContent = 'Sign-in popup was blocked or closed. If you\'re inside an app like Teams, open this page in your regular browser (Safari/Chrome) instead.';
+      } else if (err.code === 'auth/unauthorized-domain') {
+        fb.textContent = 'This domain isn\'t authorized for sign-in yet — add it under Firebase console → Authentication → Settings → Authorized domains.';
+      } else {
+        fb.textContent = 'Sign-in failed: ' + (err.message || 'unknown error');
+      }
+    });
+  });
+
+  $('signout-btn').addEventListener('click', function () { signOut(auth); });
+
+  onAuthStateChanged(auth, function (user) {
+    if (user) {
+      setSignedInUI(user);
+      loadPending();
+      loadApproved();
+    } else {
+      setSignedOutUI();
+    }
+  });
+
+  function setSignedInUI(user) {
     $('signin-section').style.display = 'none';
     $('admin-bar').style.display = 'flex';
     $('pending-heading').style.display = 'block';
     $('approved-heading').style.display = 'block';
     $('pending-grid').style.display = 'grid';
     $('approved-grid').style.display = 'grid';
-    $('admin-email-display').textContent = 'Signed in as ' + email;
+    $('admin-email-display').textContent = 'Signed in as ' + (user.email || user.displayName);
   }
 
   function setSignedOutUI() {
-    idToken = null;
     $('signin-section').style.display = 'block';
     $('admin-bar').style.display = 'none';
     $('pending-heading').style.display = 'none';
@@ -135,48 +183,7 @@
     $('approved-grid').style.display = 'none';
     $('pending-grid').innerHTML = '';
     $('approved-grid').innerHTML = '';
-    $('signin-form').reset();
   }
-
-  $('signin-form').addEventListener('submit', function (e) {
-    e.preventDefault();
-    var fb = $('signin-feedback');
-    var btn = $('signin-btn');
-    fb.textContent = '';
-    if (API_KEY.indexOf('PASTE_YOUR') === 0) {
-      fb.textContent = 'This page needs your Firebase Web API key pasted into admin.html first — see FIREBASE-SETUP.md.';
-      return;
-    }
-    var email = $('admin-email').value.trim();
-    var password = $('admin-password').value;
-    btn.disabled = true;
-    btn.textContent = 'Signing in…';
-    fetch(AUTH_SIGNIN_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: email, password: password, returnSecureToken: true })
-    })
-      .then(function (res) { return res.json().then(function (data) { return { ok: res.ok, data: data }; }); })
-      .then(function (result) {
-        if (!result.ok) {
-          throw new Error((result.data && result.data.error && result.data.error.message) || 'Sign-in failed');
-        }
-        idToken = result.data.idToken;
-        setSignedInUI(email);
-        loadPending();
-        loadApproved();
-      })
-      .catch(function (err) {
-        console.error('Sign-in failed:', err);
-        fb.textContent = 'Sign-in failed. Check your email and password and try again.';
-      })
-      .finally(function () {
-        btn.disabled = false;
-        btn.textContent = 'Sign in';
-      });
-  });
-
-  $('signout-btn').addEventListener('click', setSignedOutUI);
 
   function formatDate(ts) {
     if (!ts) return '';
@@ -189,13 +196,24 @@
     });
   }
 
+  function apiError(res) {
+    // A 401/403 here almost always means this signed-in account isn't the
+    // one whitelisted in the database rules yet.
+    if (res.status === 401 || res.status === 403) {
+      return new Error('Permission denied (' + res.status + ') — this Google account may not be whitelisted in the database rules yet.');
+    }
+    return new Error('Request failed (' + res.status + ')');
+  }
+
   // ---------------- Pending queue ----------------
   function loadPending() {
     var grid = $('pending-grid');
     grid.innerHTML = '<p class="wall-loading">Loading pending submissions…</p>';
-    fetch(DB_URL + '/pendingSubmissions.json?auth=' + idToken)
+    getToken().then(function (token) {
+      return fetch(DB_URL + '/pendingSubmissions.json?auth=' + token);
+    })
       .then(function (res) {
-        if (!res.ok) throw new Error('Could not load submissions (' + res.status + ')');
+        if (!res.ok) throw apiError(res);
         return res.json();
       })
       .then(function (data) {
@@ -210,7 +228,7 @@
       })
       .catch(function (err) {
         console.error('Loading pending submissions failed:', err);
-        grid.innerHTML = '<p class="wall-empty">Could not load pending submissions. Try refreshing.</p>';
+        grid.innerHTML = '<p class="wall-empty">' + escapeHtml(err.message || 'Could not load pending submissions.') + '</p>';
       });
   }
 
@@ -254,7 +272,7 @@
         })
         .catch(function (err) {
           console.error('Approve failed:', err);
-          alert('Could not approve this submission. Please try again.');
+          alert(err.message || 'Could not approve this submission. Please try again.');
           setBusy(false);
         });
     });
@@ -269,7 +287,7 @@
         })
         .catch(function (err) {
           console.error('Reject failed:', err);
-          alert('Could not reject this submission. Please try again.');
+          alert(err.message || 'Could not reject this submission. Please try again.');
           setBusy(false);
         });
     });
@@ -298,36 +316,43 @@
       licenseAgreed: entry.licenseAgreed || false,
       approvedAt: Date.now()
     };
-    return fetch(DB_URL + '/approvedWall/' + entry.id + '.json?auth=' + idToken, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+    var token;
+    return getToken().then(function (t) {
+      token = t;
+      return fetch(DB_URL + '/approvedWall/' + entry.id + '.json?auth=' + token, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
     }).then(function (res) {
-      if (!res.ok) throw new Error('Approve write failed (' + res.status + ')');
-      return fetch(DB_URL + '/pendingSubmissions/' + entry.id + '.json?auth=' + idToken, { method: 'DELETE' });
+      if (!res.ok) throw apiError(res);
+      return fetch(DB_URL + '/pendingSubmissions/' + entry.id + '.json?auth=' + token, { method: 'DELETE' });
     }).then(function (res) {
-      if (!res.ok) throw new Error('Cleanup delete failed (' + res.status + ')');
+      if (!res.ok) throw apiError(res);
     });
   }
 
   function reject(entry) {
     // Removes the pending record. The uploaded image is left in Storage
     // under pending/ — a small number of orphaned rejected images is a
-    // fine trade-off for not adding a second REST auth scheme here; clear
+    // fine trade-off for not adding a second auth scheme here; clear
     // them out occasionally from the Firebase console if it bothers you.
-    return fetch(DB_URL + '/pendingSubmissions/' + entry.id + '.json?auth=' + idToken, { method: 'DELETE' })
-      .then(function (res) {
-        if (!res.ok) throw new Error('Reject delete failed (' + res.status + ')');
-      });
+    return getToken().then(function (token) {
+      return fetch(DB_URL + '/pendingSubmissions/' + entry.id + '.json?auth=' + token, { method: 'DELETE' });
+    }).then(function (res) {
+      if (!res.ok) throw apiError(res);
+    });
   }
 
   // ---------------- Live in the gallery (with pull-down) ----------------
   function loadApproved() {
     var grid = $('approved-grid');
     grid.innerHTML = '<p class="wall-loading">Loading the live gallery…</p>';
-    fetch(DB_URL + '/approvedWall.json?auth=' + idToken)
+    getToken().then(function (token) {
+      return fetch(DB_URL + '/approvedWall.json?auth=' + token);
+    })
       .then(function (res) {
-        if (!res.ok) throw new Error('Could not load the gallery (' + res.status + ')');
+        if (!res.ok) throw apiError(res);
         return res.json();
       })
       .then(function (data) {
@@ -342,7 +367,7 @@
       })
       .catch(function (err) {
         console.error('Loading the live gallery failed:', err);
-        grid.innerHTML = '<p class="wall-empty">Could not load the live gallery. Try refreshing.</p>';
+        grid.innerHTML = '<p class="wall-empty">' + escapeHtml(err.message || 'Could not load the live gallery.') + '</p>';
       });
   }
 
@@ -374,22 +399,23 @@
     removeBtn.addEventListener('click', function () {
       if (!confirm('Remove this piece from the live gallery? It will no longer be visible to visitors.')) return;
       removeBtn.disabled = true;
-      fetch(DB_URL + '/approvedWall/' + entry.id + '.json?auth=' + idToken, { method: 'DELETE' })
+      getToken().then(function (token) {
+        return fetch(DB_URL + '/approvedWall/' + entry.id + '.json?auth=' + token, { method: 'DELETE' });
+      })
         .then(function (res) {
-          if (!res.ok) throw new Error('Remove failed (' + res.status + ')');
+          if (!res.ok) throw apiError(res);
           card.remove();
           maybeShowEmpty($('approved-grid'), 'Nothing live yet.');
         })
         .catch(function (err) {
           console.error('Remove failed:', err);
-          alert('Could not remove this piece. Please try again.');
+          alert(err.message || 'Could not remove this piece. Please try again.');
           removeBtn.disabled = false;
         });
     });
 
     return card;
   }
-})();
 </script>
 
 </body>
