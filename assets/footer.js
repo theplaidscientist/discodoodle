@@ -33,21 +33,31 @@
     // you're already on it, and show pack links instead.
     var onGalleryPage = window.SL_PAGE === 'gallery';
 
-    var quickLinks = onGalleryPage
-      ? '<a href="' + SHELL_URL + '?pack=dailydoodle" class="holiday-chip">Daily Doodle</a> ' +
-        '<a href="' + SHELL_URL + '?pack=monstermaker" class="holiday-chip">Monster Maker</a> ' +
-        '<a href="' + SHELL_URL + '?pack=themepark" class="holiday-chip">Theme Park Edition</a> '
-      : '<a href="' + GALLERY_URL + '" class="holiday-chip">🖼️ Disco Doodle Gallery</a> ' +
-        '<a href="' + SUBMIT_URL + '" class="holiday-chip">🎨 Share Your Art</a> ';
+    // Gallery page still gets the pack-link pills (you're already on the
+    // Gallery, so those are the useful shortcut). Everywhere else, this is
+    // now one plain sentence instead of two pill buttons — same treatment
+    // as the "other packs" links on generator pages: bold text links, no
+    // pill background, no emoji.
+    var quickLinksHtml = onGalleryPage
+      ? '<div class="sl-footer-links">' +
+          '<a href="' + SHELL_URL + '?pack=dailydoodle" class="holiday-chip">Daily Doodle</a> ' +
+          '<a href="' + SHELL_URL + '?pack=monstermaker" class="holiday-chip">Monster Maker</a> ' +
+          '<a href="' + SHELL_URL + '?pack=themepark" class="holiday-chip">Theme Park Edition</a> ' +
+        '</div>'
+      : '<p class="other-packs-line sl-footer-share-line">' +
+          '<a href="' + SUBMIT_URL + '" class="other-pack-link">Share Your Art</a> in our ' +
+          '<a href="' + GALLERY_URL + '" class="other-pack-link">Doodle Gallery</a>' +
+        '</p>';
 
-    // Pills first (the more useful, actionable row), then everything else —
-    // GitHub/License/Contact/copyright/Plaid Labs credit — folded into one
-    // plain text line below instead of stacked across several <br>s. "Disco
-    // Doodle is a division of" is dropped; "Plaid Labs" just closes out the
-    // line in the same bold/icon treatment it always had.
+    // Sentence/pills first (the more useful, actionable row), then
+    // everything else — GitHub/License/Contact/copyright/Plaid Labs credit
+    // — folded into one plain text line below instead of stacked across
+    // several <br>s. "Disco Doodle is a division of" is dropped; "Plaid
+    // Labs" just closes out the line in the same bold/icon treatment it
+    // always had.
     mount.innerHTML =
       '<footer id="sl-footer">' +
-        '<div class="sl-footer-links">' + quickLinks + '</div>' +
+        quickLinksHtml +
         '<p class="sl-footer-line">' +
           '<a href="https://github.com/theplaidscientist">GitHub</a> · ' +
           '<a href="https://theplaidscientist.github.io/CONTENT-LICENSE.md">License</a> · ' +

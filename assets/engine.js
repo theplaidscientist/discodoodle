@@ -210,7 +210,7 @@
       '<div class="spin-wrap"><button id="spin-btn">Spin</button></div>' +
       '<div class="share-wrap" id="share-wrap">' +
         '<button id="copy-btn">Copy result</button>' +
-        '<button id="save-image-btn">📱 Share to social media</button>' +
+        '<button id="save-image-btn">Share your #discodoodle</button>' +
         '<span id="copy-feedback"></span>' +
       '</div>' +
       '<details class="history-wrap" id="history-wrap">' +
