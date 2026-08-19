@@ -16,13 +16,15 @@
    which doesn't fit a free/no-signup hobby project. Cloudflare's is free
    with no pageview cap, sets no cookies (no consent banner needed), and
    works via this one script tag without moving DNS/nameservers anywhere.
-   TOKEN below is a placeholder — see INSTRUCTIONS.md for how to get the
-   real one from a free Cloudflare account and drop it in here. Loaded on
-   every page since this file is included everywhere already. */
+   Token below is the real one from Andy's free Cloudflare account (Web
+   Analytics → discodoodle.com, added via the analytics-only "Add a site"
+   flow — no DNS/nameserver change). Loaded on every page since this file
+   is included everywhere already. */
 (function () {
-  var CF_ANALYTICS_TOKEN = 'PASTE_YOUR_CLOUDFLARE_BEACON_TOKEN_HERE';
+  var CF_ANALYTICS_TOKEN = 'ce2fd4b858b2486e926f26f4ae0fe61e';
   if (!CF_ANALYTICS_TOKEN || CF_ANALYTICS_TOKEN.indexOf('PASTE_YOUR') === 0) return;
   var s = document.createElement('script');
+  s.type = 'module';
   s.defer = true;
   s.src = 'https://static.cloudflareinsights.com/beacon.min.js';
   s.setAttribute('data-cf-beacon', JSON.stringify({ token: CF_ANALYTICS_TOKEN }));
