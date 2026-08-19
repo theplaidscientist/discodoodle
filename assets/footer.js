@@ -40,17 +40,21 @@
       : '<a href="' + GALLERY_URL + '" class="holiday-chip">🖼️ Disco Doodle Gallery</a> ' +
         '<a href="' + SUBMIT_URL + '" class="holiday-chip">🎨 Share Your Art</a> ';
 
+    // Pills first (the more useful, actionable row), then everything else —
+    // GitHub/License/Contact/copyright/Plaid Labs credit — folded into one
+    // plain text line below instead of stacked across several <br>s. "Disco
+    // Doodle is a division of" is dropped; "Plaid Labs" just closes out the
+    // line in the same bold/icon treatment it always had.
     mount.innerHTML =
       '<footer id="sl-footer">' +
-        '<span class="sl-footer-brand">Disco Doodle<br>is a division of<br>' +
-          '<a href="https://theplaidscientist.github.io/" class="sl-footer-parent">' + PLAID_ICON + 'Plaid Labs</a></span>' +
-        '<a href="https://github.com/theplaidscientist">GitHub</a> · ' +
-        '<a href="https://theplaidscientist.github.io/CONTENT-LICENSE.md">License</a> · ' +
-        '<a href="#" id="sl-contact-link" rel="nofollow noopener">Contact Us</a>' +
-        '<br>' +
-        '© 2026 Andy Schelb — code MIT, content CC BY-NC 4.0' +
-        '<br>' +
-        quickLinks +
+        '<div class="sl-footer-links">' + quickLinks + '</div>' +
+        '<p class="sl-footer-line">' +
+          '<a href="https://github.com/theplaidscientist">GitHub</a> · ' +
+          '<a href="https://theplaidscientist.github.io/CONTENT-LICENSE.md">License</a> · ' +
+          '<a href="#" id="sl-contact-link" rel="nofollow noopener">Contact Us</a> · ' +
+          '© 2026 Andy Schelb — code MIT, content CC BY-NC 4.0 · ' +
+          '<a href="https://theplaidscientist.github.io/" class="sl-footer-parent">' + PLAID_ICON + 'Plaid Labs</a>' +
+        '</p>' +
       '</footer>';
 
     var contactLink = document.getElementById('sl-contact-link');

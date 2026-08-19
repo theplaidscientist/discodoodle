@@ -167,6 +167,23 @@
     hideShare();
   }
 
+  // ---------------- Cross-links to the other 2 packs ----------------
+  // Daily Doodle, Monster Maker, and Theme Park Edition stay 3 separate
+  // pages (each has its own URL/SEO landing page) — this is just a plain
+  // link line pointing at whichever 2 aren't currently showing. Wording
+  // flips depending on whether Daily Doodle (the site's default/homepage
+  // pack) is the one currently active, or one of the other two.
+  function otherPacksLineHtml(pack) {
+    var list = window.SL_PACK_LIST || [];
+    var others = list.filter(function (p) { return p.id !== pack.id; });
+    if (!others.length) return '';
+    var heading = pack.id === 'dailydoodle' ? 'Try out our other theme packs:' : 'Our other packs:';
+    var links = others.map(function (p) {
+      return '<a href="' + PACK_LANDING[p.id] + '" class="other-pack-link">' + p.label + '</a>';
+    }).join(' ');
+    return '<p class="other-packs-line">' + heading + ' ' + links + '</p>';
+  }
+
   // ---------------- Shell rendering ----------------
   function renderShell(pack) {
     var app = document.getElementById('app');
@@ -199,10 +216,11 @@
         '<p class="cat-hint">💡 Tap <strong>Edit Categories</strong> below for maximum customization — add your own ideas, remove ones you don\'t want, and turn categories on/off.</p>' +
       '</div>' +
       '<div class="settings-row">' +
-        '<label class="repeat-toggle"><input type="checkbox" id="avoid-repeats"' + (avoidRepeats ? ' checked' : '') + '> Avoid repeats until all shown</label>' +
-        '<button id="sound-toggle" class="sound-btn' + (soundEnabled ? '' : ' muted') + '" aria-pressed="' + soundEnabled + '" aria-label="Toggle sound effects">' + (soundEnabled ? '🔊' : '🔇') + ' Sound</button>' +
         '<button id="cat-toggle-btn" class="cat-toggle-btn" aria-expanded="false">✏️ Edit Categories</button>' +
         '<button id="holiday-toggle-btn" class="pill-btn" type="button">🎃🎄 Holiday overlay</button>' +
+        '<div class="settings-row-break" aria-hidden="true"></div>' +
+        '<label class="repeat-toggle"><input type="checkbox" id="avoid-repeats"' + (avoidRepeats ? ' checked' : '') + '> Avoid repeats until all shown</label>' +
+        '<button id="sound-toggle" class="sound-btn' + (soundEnabled ? '' : ' muted') + '" aria-pressed="' + soundEnabled + '" aria-label="Toggle sound effects">' + (soundEnabled ? '🔊' : '🔇') + ' Sound</button>' +
       '</div>' +
       '<div id="categories-panel-wrap">' +
         '<div id="pack-extra-controls"></div>' +
@@ -214,7 +232,8 @@
             '<button type="button" class="holiday-chip" data-holiday="christmas">🎄 Christmas</button>' +
           '</div>' +
         '</div>' +
-      '</div>';
+      '</div>' +
+      otherPacksLineHtml(pack);
 
     applyHolidayVisuals();
     wireControls(pack);

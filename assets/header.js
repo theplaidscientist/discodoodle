@@ -58,10 +58,15 @@
     var inWall = !forceRoot && window.location.pathname.indexOf('/wall/') !== -1;
     var homeHref = forceRoot ? '/' : (inWall ? '../index.html' : 'index.html');
 
+    // The disco-ball is now the same rounded-square favicon image everywhere
+    // (root-absolute path, works from any page depth) instead of a raw 🪩
+    // emoji glyph — emoji rendering varies wildly by OS/browser, which is
+    // why it was showing up as a flat grey circle for some visitors. It
+    // sits inline right after "disco", like an extra character, instead of
+    // floating absolutely-positioned above the text.
     var fullLogo =
       '<a href="' + homeHref + '" class="dd-logo" aria-label="Disco Doodle — home">' +
-        '<span class="dd-logo-ball" aria-hidden="true">🪩</span>' +
-        '<span class="dd-logo-line dd-logo-line--disco">disco</span>' +
+        '<span class="dd-logo-line dd-logo-line--disco">disco<img src="/android-chrome-192x192.png" alt="" class="dd-logo-ball" aria-hidden="true"></span>' +
         '<span class="dd-logo-line dd-logo-line--doodle">doodle</span>' +
       '</a>';
 

@@ -79,14 +79,18 @@ a { color: inherit; }
 }
 .dd-logo-line--disco { color: var(--brand-pink); }
 .dd-logo-line--doodle { color: var(--brand-mint); }
+/* Sits inline right after "disco" like an extra character — sized off the
+   line's own (inherited) font-size so it scales with the text automatically
+   in every context (full sidebar logo, any future size) with no separate
+   override needed. */
 .dd-logo-ball {
-  position: absolute;
-  top: -0.15em;
-  right: -0.05em;
-  font-size: clamp(18px, 4vw, 46px);
-  line-height: 1;
-  transform: rotate(12deg);
-  filter: drop-shadow(0 3px 4px rgba(0,0,0,.25));
+  display: inline-block;
+  height: 0.72em;
+  width: 0.72em;
+  margin-left: 0.05em;
+  border-radius: 22%;
+  vertical-align: 0.02em;
+  object-fit: cover;
 }
 #pack-pills { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-start; }
 .pack-pill {
@@ -211,7 +215,8 @@ body.dd-has-sidebar > #sl-footer-mount {
    logo asset, but overflows a 260px-wide nav column — scaled down here to
    fit while keeping the same stacked/outlined/left-justified design. */
 .dd-sidebar .dd-logo-line { font-size: 36px; }
-.dd-sidebar .dd-logo-ball { font-size: 20px; }
+/* No .dd-logo-ball override needed here anymore — it's sized in em units
+   off the line's own font-size above, so it scales automatically. */
 
 .dd-pack-nav {
   display: flex;
@@ -310,6 +315,10 @@ h1.pack-title {
   display: flex; justify-content: center; align-items: center;
   gap: 10px; flex-wrap: wrap; margin-bottom: 1rem;
 }
+/* Forces "Avoid repeats" + "Sound" onto their own line under "Edit
+   Categories" / "Holiday overlay" every time — a deliberate line break
+   rather than however flex-wrap happens to land at a given screen width. */
+.settings-row-break { flex-basis: 100%; height: 0; }
 .repeat-toggle {
   display: flex; align-items: center; gap: 6px;
   font-size: 12px; color: var(--text-secondary); cursor: pointer;
@@ -451,6 +460,17 @@ h1.pack-title {
 .cat-card.inactive .col-header { margin-bottom: 0; }
 .cat-card.inactive .item-list, .cat-card.inactive .add-row { display: none; }
 
+/* ---------- Cross-links to the other 2 packs ---------- */
+.other-packs-line {
+  text-align: center; font-size: 13px; color: var(--text-secondary);
+  margin: 1.5rem 0 0.5rem;
+}
+.other-pack-link {
+  color: var(--text-primary); font-weight: 600; text-decoration: none;
+  padding: 3px 6px; border-radius: 6px;
+}
+.other-pack-link:hover { background: var(--accent-soft); text-decoration: underline; }
+
 /* Holiday overlay toggle — tucked at the bottom of the categories panel, discoverable not prominent */
 #holiday-toggle-row {
   border-top: 1px dashed var(--border);
@@ -467,6 +487,7 @@ h1.pack-title {
   cursor: pointer; color: var(--text-secondary); min-height: 36px;
   display: inline-flex; align-items: center; text-decoration: none;
 }
+.holiday-chip:hover { background: var(--surface-1); color: var(--text-primary); border-color: var(--accent); }
 .holiday-chip.on-halloween { background: #ff8c1a; color: #1a0e00; border-color: #1a0e00; }
 .holiday-chip.on-christmas { background: #b5153b; color: #ffffff; border-color: #0b5c33; }
 
@@ -485,12 +506,21 @@ h1.pack-title {
   line-height: 1.7;
 }
 #sl-footer a { text-decoration: underline; text-underline-offset: 2px; }
-#sl-footer .sl-footer-brand { display: block; margin-bottom: 4px; line-height: 1.5; }
-#sl-footer .sl-footer-brand a { font-family: 'Poppins', sans-serif; font-weight: 700; text-decoration: none; }
-#sl-footer .sl-footer-brand a:hover { text-decoration: underline; }
-/* "Plaid Labs" — the parent brand — set apart from the rest of the footer
-   with larger type so it reads as the more prominent name of the two. */
-#sl-footer .sl-footer-parent { display: inline-block; font-size: 16px; margin-top: 2px; }
+/* Pills row first — same side-by-side chip style everywhere, with the
+   highlight-on-hover .holiday-chip already has. Overrides the general
+   "#sl-footer a" underline above; a pill shouldn't show a text underline. */
+.sl-footer-links {
+  display: flex; justify-content: center; align-items: center;
+  gap: 8px; flex-wrap: wrap; margin: 0 0 10px;
+}
+#sl-footer .holiday-chip { text-decoration: none; }
+/* Everything else — GitHub/License/Contact/copyright/Plaid Labs — is one
+   plain text line now instead of several stacked <br>s. */
+.sl-footer-line { margin: 0; }
+/* "Plaid Labs" — the parent brand — still gets its icon + bold treatment
+   even folded into the single line, so the credit still stands out. */
+#sl-footer .sl-footer-parent { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 13px; text-decoration: none; }
+#sl-footer .sl-footer-parent:hover { text-decoration: underline; }
 
 @media (max-width: 480px) {
   body { padding: 0 0.75rem 1.5rem; }
