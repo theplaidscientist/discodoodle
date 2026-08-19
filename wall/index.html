@@ -15,7 +15,12 @@
 <meta name="twitter:title" content="Disco Doodle Gallery — Disco Doodle">
 <meta name="twitter:description" content="Art made from Disco Doodle's drawing prompts, submitted by fellow artists.">
 <meta name="twitter:image" content="https://discodoodle.com/assets/og/og-home.png">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%A7%AA%3C/text%3E%3C/svg%3E">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="shortcut icon" href="/favicon.ico">
+<meta name="theme-color" content="#F4A261">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Shrikhand&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -44,74 +49,48 @@
   .wall-title { font-size: 30px; margin: 1rem 0 0; text-align: center; letter-spacing: 0.01em; }
   .wall-sub { text-align: center; font-size: 14px; color: var(--text-secondary); max-width: 480px; margin: 8px auto 1.75rem; }
 
-  /* ---- The Gallery hallway ---- */
-  #gallery-scroll {
-    overflow-x: auto;
-    overflow-y: hidden;
-    -webkit-overflow-scrolling: touch;
-    padding: 40px 16px 16px;
-    margin-bottom: 1.5rem;
-    scrollbar-width: thin;
-    scroll-behavior: auto;
-  }
-  #gallery-track {
-    display: flex;
-    align-items: flex-end;
-    gap: 26px;
-    width: max-content;
-    min-height: 220px;
-  }
-  .wall-loading, .wall-empty { text-align: center; color: var(--text-secondary); font-size: 13px; padding: 2rem 3rem; white-space: normal; }
+  /* ---- The Gallery — a static, wrapping grid. No auto-scroll (it got
+     clunky as the gallery grew), and cards sized to stay legible on
+     mobile instead of the old 128px "postage stamp" size. ---- */
+  .wall-loading, .wall-empty { text-align: center; color: var(--text-secondary); font-size: 13px; padding: 2rem 1rem; white-space: normal; grid-column: 1 / -1; }
 
-  .frame-card {
-    flex: 0 0 auto;
-    width: 172px;
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    gap: 16px;
+    padding: 4px 0 1.5rem;
+  }
+  @media (min-width: 640px) {
+    .gallery-grid { grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 22px; }
+  }
+
+  .gallery-card {
     display: flex;
     flex-direction: column;
-    align-items: center;
     cursor: pointer;
     outline: none;
+    border-radius: 14px;
+    background: var(--surface-2);
+    border: 0.5px solid var(--border);
+    overflow: hidden;
+    transition: transform .15s ease, box-shadow .15s ease;
   }
-  .frame-card:nth-child(5n) { transform: translateY(20px) rotate(-2deg); }
-  .frame-card:nth-child(5n+1) { transform: translateY(-8px) rotate(1.5deg); }
-  .frame-card:nth-child(5n+2) { transform: translateY(10px) rotate(-1deg); }
-  .frame-card:nth-child(5n+3) { transform: translateY(-16px) rotate(2deg); }
-  .frame-card:nth-child(5n+4) { transform: translateY(2px) rotate(-1.5deg); }
-
-  .frame {
-    padding: 10px;
-    border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
-    background:
-      radial-gradient(circle at 9px 9px, #241a0c 38%, transparent 40%),
-      radial-gradient(circle at calc(100% - 9px) 9px, #241a0c 38%, transparent 40%),
-      radial-gradient(circle at 9px calc(100% - 9px), #241a0c 38%, transparent 40%),
-      radial-gradient(circle at calc(100% - 9px) calc(100% - 9px), #241a0c 38%, transparent 40%),
-      linear-gradient(135deg, #e0bc7c, #9a7644 45%, #c9a464 70%, #7a5c34);
-    box-shadow:
-      0 14px 24px rgba(0,0,0,.6),
-      inset 0 0 0 3px rgba(255,255,255,.16),
-      inset 0 0 0 6px rgba(50,30,10,.55);
-    transition: transform .2s ease, box-shadow .2s ease;
+  .gallery-card:hover, .gallery-card:focus-visible {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 26px rgba(0,0,0,.4);
   }
-  .frame-card:hover .frame, .frame-card:focus-visible .frame {
-    transform: scale(1.05);
-    box-shadow:
-      0 18px 28px rgba(0,0,0,.65),
-      inset 0 0 0 3px rgba(255,255,255,.2),
-      inset 0 0 0 6px rgba(50,30,10,.6);
+  .gallery-card img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    background: var(--surface-1);
   }
-  .frame-inner {
-    background: #f7f2e6;
-    padding: 6px;
-    border-radius: 245px 10px 215px 10px / 10px 215px 10px 245px;
-  }
-  .frame-inner img {
-    display: block; width: 100%; height: 150px; object-fit: cover;
-    border-radius: 4px; background: #eee;
-  }
-  .frame-card figcaption {
-    margin-top: 10px; font-size: 11px; text-align: center;
-    color: var(--text-secondary); max-width: 172px; line-height: 1.4;
+  .gallery-card figcaption {
+    padding: 9px 11px 11px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.4;
   }
 
   /* ---- Share Your Art call-to-action ---- */
@@ -141,18 +120,10 @@
 
   @media (max-width: 480px) {
     .wall-title { font-size: 22px; }
-    #gallery-track { gap: 18px; min-height: 175px; }
-    .frame-card { width: 128px; }
-    .frame-inner img { height: 110px; }
-    .frame-card:nth-child(5n) { transform: translateY(10px) rotate(-2deg); }
-    .frame-card:nth-child(5n+1) { transform: translateY(-4px) rotate(1.5deg); }
-    .frame-card:nth-child(5n+2) { transform: translateY(6px) rotate(-1deg); }
-    .frame-card:nth-child(5n+3) { transform: translateY(-8px) rotate(2deg); }
-    .frame-card:nth-child(5n+4) { transform: translateY(1px) rotate(-1.5deg); }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .frame-card, .frame { transition: none; }
+    .gallery-card { transition: none; }
   }
 </style>
 </head>
@@ -160,14 +131,12 @@
 
 <div id="sl-header-mount"></div>
 
-<main>
+<main id="app">
   <h1 class="wall-title">🖼️ Disco Doodle Gallery</h1>
-  <p class="wall-sub">Gallery scrolls left to right — tap a photo to see it in greater detail.</p>
+  <p class="wall-sub">Art made from Disco Doodle's prompts, submitted by fellow artists — tap a piece to see it larger.</p>
 
-  <div id="gallery-scroll">
-    <div id="gallery-track">
-      <p class="wall-loading">Loading the gallery…</p>
-    </div>
+  <div id="gallery-grid" class="gallery-grid">
+    <p class="wall-loading">Loading the gallery…</p>
   </div>
 
   <div class="pill-cta-wrap">
@@ -185,6 +154,7 @@
 
 <script>
   window.SL_PAGE = 'gallery';
+  window.SL_LAYOUT = 'sidebar';
   window.SL_PACK_LIST = [
     { id: 'dailydoodle', label: 'Daily Doodle', src: '../assets/packs/dailydoodle.js' },
     { id: 'monstermaker', label: 'Monster Maker', src: '../assets/packs/monstermaker.js' },
@@ -230,108 +200,43 @@
   lightbox.addEventListener('click', function (e) { if (e.target === lightbox) closeLightbox(); });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeLightbox(); });
 
-  // ---- The Gallery — approved submissions only, hung hallway-style ----
+  // ---- The Gallery — approved submissions only, static wrapping grid ----
   function loadGallery() {
-    var scroll = $('gallery-scroll');
-    var track = $('gallery-track');
+    var grid = $('gallery-grid');
     fetch(DB_URL + '/approvedWall.json')
       .then(function (res) { return res.json(); })
       .then(function (data) {
         var entries = data ? Object.keys(data).map(function (k) { return Object.assign({ id: k }, data[k]); }) : [];
         entries.sort(function (a, b) { return (b.submittedAt || 0) - (a.submittedAt || 0); });
         if (entries.length === 0) {
-          track.innerHTML = '<p class="wall-empty">No art in the gallery yet — be the first to submit!</p>';
+          grid.innerHTML = '<p class="wall-empty">No art in the gallery yet — be the first to submit!</p>';
           return;
         }
-        // Duplicate the run once so the hallway can loop seamlessly. The
-        // second copy is hidden from keyboard/screen-reader users (via
-        // aria-hidden + tabindex=-1) so they only ever encounter each
-        // piece once, even though it's visually repeated for sighted users.
-        var loopEntries = entries.length > 2 ? entries.concat(entries) : entries;
-        track.innerHTML = loopEntries.map(function (e, i) {
-          var isDuplicate = i >= entries.length;
+        grid.innerHTML = entries.map(function (e, i) {
           var caption = escapeHtml(e.name || 'Anonymous Artist') + ' · ' + escapeHtml(e.pack || 'Disco Doodle') + ' · ' + formatDate(e.submittedAt);
           var alt = escapeHtml((e.name || 'Anonymous Artist') + "'s " + (e.pack || 'Disco Doodle') + ' creation');
           return (
-            '<figure class="frame-card" tabindex="' + (isDuplicate ? '-1' : '0') + '" ' +
-              (isDuplicate ? 'aria-hidden="true" ' : 'role="button" aria-label="View ' + alt + ' full size" ') +
-              'data-idx="' + i + '">' +
-              '<div class="frame"><div class="frame-inner">' +
-                '<img src="' + e.imageUrl + '" loading="lazy" alt="' + alt + '">' +
-              '</div></div>' +
+            '<figure class="gallery-card" tabindex="0" role="button" aria-label="View ' + alt + ' full size" data-idx="' + i + '">' +
+              '<img src="' + e.imageUrl + '" loading="lazy" alt="' + alt + '">' +
               '<figcaption>' + caption + '</figcaption>' +
             '</figure>'
           );
         }).join('');
 
-        track.addEventListener('click', function (e) {
-          var card = e.target.closest('.frame-card');
-          if (card) openLightbox(loopEntries[Number(card.getAttribute('data-idx'))]);
+        grid.addEventListener('click', function (e) {
+          var card = e.target.closest('.gallery-card');
+          if (card) openLightbox(entries[Number(card.getAttribute('data-idx'))]);
         });
-        track.addEventListener('keydown', function (e) {
+        grid.addEventListener('keydown', function (e) {
           if (e.key !== 'Enter' && e.key !== ' ') return;
-          var card = e.target.closest('.frame-card');
-          if (card) { e.preventDefault(); openLightbox(loopEntries[Number(card.getAttribute('data-idx'))]); }
+          var card = e.target.closest('.gallery-card');
+          if (card) { e.preventDefault(); openLightbox(entries[Number(card.getAttribute('data-idx'))]); }
         });
-
-        if (entries.length > 2) {
-          // Let images lay out before measuring for the loop point.
-          requestAnimationFrame(function () { requestAnimationFrame(function () { startAutoScroll(scroll, track); }); });
-        }
       })
       .catch(function (err) {
         console.error('Gallery load failed:', err);
-        track.innerHTML = '<p class="wall-empty">Could not load the gallery right now. Try refreshing.</p>';
+        grid.innerHTML = '<p class="wall-empty">Could not load the gallery right now. Try refreshing.</p>';
       });
-  }
-
-  function startAutoScroll(scrollEl, trackEl) {
-    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    var loopWidth = trackEl.scrollWidth / 2;
-    if (!loopWidth || loopWidth < 10) return;
-
-    var SPEED = 26; // pixels per second — a gentle stroll, not a scroll race
-    var paused = false, lastTs = null, resumeTimer = null;
-    // scrollLeft only holds whole pixels, so sub-pixel-per-frame increments
-    // (26px/s at 60fps is ~0.43px/frame) would round away to nothing if we
-    // read it back as our accumulator. Keep the true position as a float
-    // here instead, and write the rounded value out to the DOM each frame.
-    var pos = scrollEl.scrollLeft;
-
-    function step(ts) {
-      if (lastTs == null) lastTs = ts;
-      var dt = ts - lastTs;
-      lastTs = ts;
-      if (!paused) {
-        pos += (SPEED * dt) / 1000;
-        if (pos >= loopWidth) pos -= loopWidth;
-        scrollEl.scrollLeft = pos;
-      }
-      requestAnimationFrame(step);
-    }
-    requestAnimationFrame(step);
-
-    function pause() {
-      paused = true;
-      if (resumeTimer) clearTimeout(resumeTimer);
-    }
-    function scheduleResume() {
-      if (resumeTimer) clearTimeout(resumeTimer);
-      resumeTimer = setTimeout(function () {
-        pos = scrollEl.scrollLeft;
-        paused = false;
-        lastTs = null;
-      }, 2500);
-    }
-    ['pointerdown', 'touchstart', 'wheel'].forEach(function (evt) {
-      scrollEl.addEventListener(evt, pause, { passive: true });
-    });
-    ['pointerup', 'touchend', 'mouseleave'].forEach(function (evt) {
-      scrollEl.addEventListener(evt, scheduleResume, { passive: true });
-    });
-    scrollEl.addEventListener('scroll', function () {
-      if (scrollEl.scrollLeft >= loopWidth) scrollEl.scrollLeft -= loopWidth;
-    }, { passive: true });
   }
 
   loadGallery();

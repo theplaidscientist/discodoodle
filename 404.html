@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Page not found — Disco Doodle</title>
+<meta name="description" content="This page doesn't exist — but the Disco Doodle drawing-prompt generators are all still here.">
+<!-- This page should never be indexed — it's not real content, and GitHub
+     Pages serves it for any unmatched URL, so it could otherwise show up
+     duplicated under a hundred different broken paths. -->
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="shortcut icon" href="/favicon.ico">
+<meta name="theme-color" content="#F4A261">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shrikhand&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/style.css">
+<style>
+  /* ---- 404 content: reuses the shared shell (sidebar, fonts, palette) but
+     needs its own small layout since there's no engine.js/pack content here. ---- */
+  .nf-wrap { max-width: 480px; margin: 3rem auto 2rem; text-align: center; padding: 0 1rem; }
+  .nf-emoji { font-size: 56px; line-height: 1; margin-bottom: 0.5rem; }
+  .nf-title { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 26px; margin: 0.25rem 0 0.5rem; }
+  .nf-sub { color: var(--text-secondary); font-size: 14px; line-height: 1.6; margin: 0 0 2rem; }
+  .nf-links { display: flex; flex-direction: column; gap: 10px; max-width: 320px; margin: 0 auto; }
+  .nf-link {
+    display: block; text-decoration: none; border: 0.5px solid var(--border);
+    background: var(--surface-2); color: var(--text-primary);
+    border-radius: var(--radius); padding: 13px 18px; font-size: 14px; font-weight: 500;
+    min-height: 48px; box-sizing: border-box; line-height: 22px;
+  }
+  .nf-link:hover { background: var(--surface-1); }
+  .nf-link.nf-primary {
+    background: var(--accent); color: var(--accent-contrast); border-color: var(--accent); font-weight: 600;
+  }
+  .nf-link.nf-primary:hover { filter: brightness(1.08); }
+</style>
+</head>
+<body>
+
+<div id="sl-header-mount"></div>
+
+<main id="app">
+  <div class="nf-wrap">
+    <div class="nf-emoji">🪩</div>
+    <h1 class="nf-title">This page took a wrong turn</h1>
+    <p class="nf-sub">We couldn't find that page — but every Disco Doodle generator is still right here, free and ready to spin.</p>
+    <nav class="nf-links" aria-label="Find your way back">
+      <a class="nf-link nf-primary" href="/">🎲 Daily Doodle (Home)</a>
+      <a class="nf-link" href="/monster-maker.html">👾 Monster Maker</a>
+      <a class="nf-link" href="/theme-park.html">🎡 Theme Park Edition</a>
+      <a class="nf-link" href="/wall/">🖼️ Gallery</a>
+    </nav>
+  </div>
+</main>
+
+<div id="sl-footer-mount"></div>
+
+<script>
+  window.SL_LAYOUT = 'sidebar';
+  // Tells header.js to use root-absolute nav links instead of computing
+  // them relative to the current URL — this page is served by GitHub Pages
+  // for ANY unmatched path, so the address bar can be at any depth and a
+  // relative link would frequently be wrong. See header.js for details.
+  window.SL_ROOT_ABSOLUTE = true;
+  window.SL_PACK_LIST = [
+    { id: 'dailydoodle', label: 'Daily Doodle', src: '/assets/packs/dailydoodle.js' },
+    { id: 'monstermaker', label: 'Monster Maker', src: '/assets/packs/monstermaker.js' },
+    { id: 'themepark', label: 'Theme Park Edition', src: '/assets/packs/themepark.js' }
+  ];
+</script>
+<script src="/assets/header.js" defer></script>
+<script src="/assets/footer.js" defer></script>
+
+</body>
+</html>

@@ -104,6 +104,165 @@ a { color: inherit; }
 }
 .pack-pill:hover { background: var(--accent-soft); }
 
+/* ---------- Sidebar layout (generator pages only) ----------
+   The persistent left nav. Gallery/Submit/Admin keep the header above
+   instead — this is scoped to body.dd-has-sidebar only. A fixed mobile
+   top bar (hamburger + compact logo) reserves its own space via
+   padding-top below 900px; the full sidebar becomes a slide-out drawer
+   with a backdrop at that width, and is always visible, in-flow, at
+   900px and up. */
+/* Sidebar mode: body itself stops being the centered/padded box (it needs
+   to span full width to host the fixed sidebar) — instead #app and the
+   footer mount each get the same max-width/centering/padding body used to
+   have, so the actual content column still reads at the same width, just
+   shifted right to clear the sidebar on desktop. */
+body.dd-has-sidebar {
+  max-width: none;
+  margin: 0;
+  padding: 64px 0 0;
+}
+body.dd-has-sidebar > #app,
+body.dd-has-sidebar > #sl-footer-mount {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 0 1rem 2rem;
+}
+@media (min-width: 900px) {
+  body.dd-has-sidebar { padding-top: 0; padding-left: 272px; }
+}
+@media (max-width: 480px) {
+  body.dd-has-sidebar > #app,
+  body.dd-has-sidebar > #sl-footer-mount { padding: 0 0.75rem 1.5rem; }
+}
+@media (min-width: 768px) {
+  body.dd-has-sidebar > #app,
+  body.dd-has-sidebar > #sl-footer-mount { padding: 0 1.5rem 2rem; }
+}
+
+.dd-mobile-bar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  background: var(--surface-0);
+  border-bottom: 0.5px solid var(--border);
+  z-index: 30;
+}
+@media (min-width: 900px) { .dd-mobile-bar { display: none; } }
+
+.dd-menu-toggle {
+  border: 0.5px solid var(--border);
+  background: var(--surface-2);
+  border-radius: 10px;
+  width: 44px;
+  height: 44px;
+  font-size: 19px;
+  cursor: pointer;
+  color: var(--text-primary);
+  flex: 0 0 auto;
+}
+
+.dd-logo-compact {
+  font-family: 'Shrikhand', cursive;
+  font-size: 19px;
+  text-decoration: none;
+  -webkit-text-stroke-width: 0.04em;
+  -webkit-text-stroke-color: var(--text-primary);
+  paint-order: stroke fill;
+  white-space: nowrap;
+}
+.dd-logo-compact-disco { color: var(--brand-pink); }
+.dd-logo-compact-doodle { color: var(--brand-mint); }
+
+.dd-sidebar-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 15, 10, 0.5);
+  z-index: 35;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .25s ease;
+}
+.dd-sidebar-backdrop.open { opacity: 1; pointer-events: auto; }
+@media (min-width: 900px) { .dd-sidebar-backdrop { display: none; } }
+
+.dd-sidebar {
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  width: 260px;
+  background: var(--surface-2);
+  border-right: 0.5px solid var(--border);
+  padding: 28px 22px;
+  overflow-y: auto;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  transform: translateX(-100%);
+  transition: transform .25s ease;
+}
+.dd-sidebar.open { transform: translateX(0); }
+@media (min-width: 900px) {
+  .dd-sidebar { transform: translateX(0); transition: none; }
+}
+/* The 120px "true size" from the brand guide is right for a standalone
+   logo asset, but overflows a 260px-wide nav column — scaled down here to
+   fit while keeping the same stacked/outlined/left-justified design. */
+.dd-sidebar .dd-logo-line { font-size: 36px; }
+.dd-sidebar .dd-logo-ball { font-size: 20px; }
+
+.dd-pack-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.dd-pack-link {
+  font-family: 'Poppins', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: left;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  min-height: 44px;
+}
+.dd-pack-link:hover { background: var(--surface-1); color: var(--text-primary); }
+.dd-pack-link.active {
+  background: var(--accent-soft);
+  color: var(--text-primary);
+  border-color: var(--accent);
+  cursor: default;
+}
+
+.dd-sidebar-footer {
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 0.5px dashed var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.dd-sidebar-footer a {
+  font-family: 'Poppins', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-decoration: none;
+  padding: 8px 6px;
+  border-radius: 8px;
+}
+.dd-sidebar-footer a:hover { background: var(--surface-1); color: var(--text-primary); }
+.dd-sidebar-footer a.active {
+  background: var(--accent-soft);
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
 /* ---------- Page title / result area ---------- */
 h1.pack-title {
   font-family: 'Poppins', sans-serif;

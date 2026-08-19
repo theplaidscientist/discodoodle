@@ -1,48 +1,61 @@
-# Disco Doodle — Color & Font Rescheme
+# Disco Doodle — SEO & Technical Audit Fixes
 
-This package restyles the whole site (generator pages, Gallery, Submit, and Admin) to match the Disco Doodle brand style guide: the peach/pink/mint palette and the Shrikhand + Poppins font pairing.
+This is cumulative — includes everything before it, so apply this one on its own (same as always: unzip, drag the contents into your repo folder in GitHub Desktop, overwrite when asked, commit and push).
 
-This is cumulative — it includes everything from the previous domain-setup package too, so you can apply it directly without applying that one first. It also supersedes the first version of this color package — the pink was wrong in that one (see note below), this version fixes it.
+There's one manual step below (getting a free Cloudflare Analytics token) — everything else just works once you push.
 
-## How to apply it
+## Why this package exists
 
-Same drag-and-drop flow as last time: unzip this package, drag everything into your local `discodoodle` repo folder in File Explorer (overwrite when asked), then in GitHub Desktop review the changes, commit, and push.
+You asked whether the site was "maximized for SEO structure and all the other deets." I actually queried the live discodoodle.com (robots.txt, sitemap.xml, page source) rather than just checking the code, and found a few real gaps: no analytics, no structured data for search engines, a duplicate-content issue between two pages, a placeholder favicon, and no custom 404 page. This package fixes all of it.
 
-## A correction: the pink hex code in your style guide was wrong
+## 1. Analytics — one manual step required
 
-Your style guide image labeled "Gentle Pink (Bubblegum Pink)" with the hex `#E76F51` — but that hex is actually a coral/orange-red, not pink at all. I used that literal hex in the first version of this package, which is why the colors looked off. I went back and sampled the actual pixel color from the pink swatch and the logo/UI mockup in your image directly, and it's a true pastel pink — around `#F4A6C8`. The peach (`#F4A261`) and mint (`#2A9D8F`) hex codes were both accurate to their swatches, so those didn't change. This version uses the corrected pink everywhere the palette shows up: the logo, Daily Doodle's pack accent, and buttons/pills that inherit the default accent.
+I wired up **Cloudflare Web Analytics**, not Plausible. Plausible has no meaningful free tier for a custom domain like yours (~$9/mo minimum) — it doesn't fit a free hobby project. Cloudflare's is genuinely free with no pageview cap, sets no cookies (so no cookie-consent banner needed), and doesn't require moving your DNS/nameservers anywhere — it's just one script tag.
 
-## What changed
+To turn it on:
 
-**Logo.** The header brand mark is the stacked "disco / doodle" wordmark in Shrikhand, left-justified, with a dark outline and the pink/mint two-tone coloring from the style guide, plus the disco ball accent. It scales up to the full 120px from the guide on a normal desktop window, and scales smoothly down on narrower screens so it never breaks the layout on mobile. It's also a link back to the homepage now, since it's the biggest thing in the header. It appears identically on every page — generator packs, Gallery, Submit, and Admin.
+1. Create a free account at cloudflare.com if you don't already have one (no credit card needed for this).
+2. In the dashboard, go to **Analytics & Logs → Web Analytics**, and click "Add a site."
+3. Enter `discodoodle.com`. Cloudflare will *not* ask you to change your nameservers for this — it just gives you a JS snippet with a token in it.
+4. Copy the token (a string of letters/numbers) out of that snippet.
+5. Open `assets/header.js` in your repo, find this line near the top:
+   ```js
+   var CF_ANALYTICS_TOKEN = 'PASTE_YOUR_CLOUDFLARE_BEACON_TOKEN_HERE';
+   ```
+   and paste your token in between the quotes.
+6. Commit and push. That's it — analytics will start showing up in the Cloudflare dashboard within a few minutes of your next visit.
 
-**Fonts.** Shrikhand is used only for that logo wordmark. Poppins replaces both of the old fonts (Russo One and Open Sans) everywhere else — body text, page headings, and all the pill/capsule buttons (pack switcher, Spin button, mode toggles, category chips, submit button, etc.).
+Until you paste a real token in, the analytics code silently does nothing (no broken script, no console errors) — so it's safe to push this package before you've done the Cloudflare signup, and come back to step 5 later.
 
-**Color palette.** The three corrected brand colors:
+## 2. The "two identical pages" question
 
-- Peach Highlight `#F4A261`
-- Gentle Pink `#F4A6C8`
-- Mint Green `#2A9D8F`
+You asked, fairly: **"Why would the daily doodle page be different than home? Why have 2x of the same page?"** You're right that they shouldn't be different — Daily Doodle *is* the homepage's default content, on purpose, and that's not changing. Nobody should have to pick a pack before they can start doodling.
 
-The site already had an "each pack gets its own accent color" system built in, so I kept that structure and mapped one brand color to each pack — the three packs stay visually distinct while all three stay strictly on your palette:
+The actual problem was narrower than "two pages" — it's specifically the **homepage and `daily-doodle.html`**, which really are duplicates of each other (same content, two URLs). Monster Maker and Theme Park Edition are *not* part of this — they're genuinely different pages targeting their own searches ("monster maker," "theme park drawing prompts") and were never an issue.
 
-- Daily Doodle → Pink
-- Monster Maker → Mint
-- Theme Park Edition → Peach
+The fix requires zero UX change and zero speed cost: I only touched an invisible `<link rel="canonical">` tag in `daily-doodle.html`'s `<head>`, pointing it at `https://discodoodle.com/` instead of at itself. That tag is a signal search engines use to know "these two URLs are the same content, please count all the ranking value toward this one" — it doesn't affect what either page looks like or how it loads for an actual visitor. `daily-doodle.html` still works exactly as before (still a real, shareable, bookmarkable URL) — it just no longer competes with your homepage for search rankings.
 
-The overall page background, cards, and text colors shifted from the old cool gray palette to a warm cream/charcoal palette that sits comfortably with all three brand colors.
+## 3. Real favicon set + app icon
 
-**Gallery page.** Its moody dark theme is untouched in spirit (still dark, still the wood-look picture frames), but its accent color moved from the old gold to your brand Peach, and it now uses Poppins/Shrikhand like everywhere else.
+The site's favicon was a generic inline SVG placeholder. It's now a proper icon set generated from your 🪩 mark on the peach brand color, at every size browsers/phones actually ask for: `favicon.ico`, 16/32/48px PNGs, a 180px Apple touch icon, and 192/512px Android icons, plus a `site.webmanifest` so "Add to Home Screen" on mobile shows the right icon and name. All wired into every page's `<head>`.
 
-One small honesty note: the pastel pink and peach are both fairly light, so as plain text/outline color on a white pill (like the pack-switcher buttons) they read a little soft rather than high-contrast. It's legible and matches your actual brand swatch faithfully, but if you'd rather have punchier, higher-contrast pill text, I can add a slightly deepened shade of the same pink/peach hue used just for text while keeping the true pastel for the bigger fills (logo, buttons) — just say the word.
+## 4. Custom 404 page
 
-## What I deliberately left alone (and why)
+Added `404.html` at the repo root. GitHub Pages automatically serves this for any URL that doesn't exist on the site (typos, old bookmarks, broken links from elsewhere) — previously visitors got GitHub's generic "404 — File not found" page, which looks nothing like your site and is a dead end. Now it's on-brand (same sidebar, same fonts/colors) with one-tap links back to all three generators and the Gallery. It's marked `noindex` so Google never indexes it as a real page.
 
-- **The shareable result-card image** (the PNG people get when they hit "Save Image" or share a result) uses its own background color and its own font (Anton) baked into a canvas drawing, separate from the website's CSS. Left untouched for now — happy to redesign that to match as its own follow-up.
-- **The Gallery's picture-frame gradient** (the warm wood-tone border around each piece of art) is a deliberate "physical frame" effect, not a brand color — left as-is rather than forcing it into pink/mint.
-- **The disco-ball intro animation's confetti colors** are intentionally a full rainbow, like a real disco light show — left alone rather than restricting to 3 colors.
-- **Seasonal holiday chip colors** (Halloween orange, Christmas red/green) are functional/seasonal, not brand colors, so untouched.
+## 5. Structured data (JSON-LD)
 
-## What's still queued up separately
+Added invisible `<script type="application/ld+json">` blocks that describe your site to search engines in a structured way — this is what powers things like rich search result previews:
 
-The bigger structural changes — the left-sidebar pack menu with mobile hamburger collapse, killing the Gallery's auto-scroll, and making the gallery images bigger (especially on mobile) — are still their own separate piece of work. Say the word whenever you're ready for that one.
+- **Homepage**: marks Disco Doodle as an `Organization` (with Plaid Labs as its parent org) and a `WebSite`.
+- **Daily Doodle, Monster Maker, Theme Park Edition**: each marked as a free `WebApplication` (explicitly `isAccessibleForFree` + a `$0` `Offer`), which is the correct schema type for a browser-based tool like these.
+
+This doesn't change anything visible on the page — it's metadata for crawlers only.
+
+## 6. Sitemap freshness
+
+Added `<lastmod>` dates to every entry in `sitemap.xml` (today's date) and removed the now-redundant `/daily-doodle.html` entry, since section 2 above means it's no longer the canonical URL for that content.
+
+## One heads-up on today's testing
+
+I ran a full local smoke test (all 7 pages + the new 404 page) with a headless browser and everything renders correctly — sidebar, favicons, JSON-LD all present, no page errors. The only console warnings were Google Fonts and Firebase requests failing, which is a restriction of my testing sandbox, not a bug in the site — I confirmed this same pattern in earlier rounds. Take a quick look at the live site after you push, especially the new 404 page (visit any nonexistent URL on discodoodle.com) and the Gallery with your real submitted art, just to be safe.

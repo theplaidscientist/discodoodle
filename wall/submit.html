@@ -6,7 +6,12 @@
 <title>Share Your Art — Disco Doodle</title>
 <meta name="description" content="Submit your art inspired by Disco Doodle's drawing prompts to the Disco Doodle Gallery.">
 <link rel="canonical" href="https://discodoodle.com/wall/submit.html">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%A7%AA%3C/text%3E%3C/svg%3E">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="shortcut icon" href="/favicon.ico">
+<meta name="theme-color" content="#F4A261">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Shrikhand&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -16,12 +21,19 @@
   .wall-title, h1.pack-title { font-family: 'Poppins', sans-serif; font-weight: 700; }
   .wall-title { font-size: 26px; margin: 1rem 0 0; text-align: center; letter-spacing: 0.01em; }
   .wall-sub { text-align: center; font-size: 15px; color: var(--text-secondary); max-width: 480px; margin: 8px auto 1.5rem; }
-  .view-gallery-link { display: block; text-align: center; font-size: 12px; color: var(--text-secondary); text-decoration: underline; text-underline-offset: 2px; margin: -0.5rem 0 1.5rem; }
-  .view-gallery-link:hover { color: var(--accent); }
+  .view-gallery-link {
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    max-width: 220px; margin: -0.25rem auto 1.75rem; text-align: center;
+    font-size: 13px; font-weight: 600; color: var(--text-secondary);
+    text-decoration: none; background: var(--surface-2);
+    border: 0.5px solid var(--border); border-radius: 999px; padding: 9px 16px;
+  }
+  .view-gallery-link:hover { color: var(--accent); border-color: var(--accent); }
 
   #submit-section {
     max-width: 520px; margin: 0 auto 2rem; background: var(--surface-2);
-    border: 0.5px solid var(--border); border-radius: 12px; padding: 1rem 1.25rem 1.25rem;
+    border: 0.5px solid var(--border); border-radius: 18px; padding: 1.25rem 1.5rem 1.5rem;
+    box-shadow: 0 10px 30px rgba(46, 38, 34, 0.06);
   }
   #submit-section h2 { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 18px; margin: 0 0 6px; }
   #submit-section .guidelines { font-size: 12px; color: var(--text-secondary); margin: 0 0 14px; line-height: 1.5; }
@@ -50,14 +62,14 @@
   #submit-feedback { font-size: 13px; margin-top: 10px; text-align: center; min-height: 18px; }
   #submit-feedback.ok { color: #1e7d32; }
   #submit-feedback.err { color: #b3261e; }
-  #image-preview { max-width: 100%; max-height: 220px; border-radius: var(--radius); margin-top: 8px; display: none; }
+  #image-preview { max-width: 100%; max-height: 220px; border-radius: 12px; margin-top: 8px; display: none; border: 0.5px solid var(--border); }
 </style>
 </head>
 <body>
 
 <div id="sl-header-mount"></div>
 
-<main>
+<main id="app">
   <h1 class="wall-title">🎨 Share Your Art</h1>
   <p class="wall-sub">We'd love to see your doodles and think others would like to see them too!</p>
   <a href="index.html" class="view-gallery-link">🖼️ View the Gallery</a>
@@ -107,6 +119,8 @@
 <div id="sl-footer-mount"></div>
 
 <script>
+  window.SL_PAGE = 'submit';
+  window.SL_LAYOUT = 'sidebar';
   window.SL_PACK_LIST = [
     { id: 'dailydoodle', label: 'Daily Doodle', src: '../assets/packs/dailydoodle.js' },
     { id: 'monstermaker', label: 'Monster Maker', src: '../assets/packs/monstermaker.js' },
