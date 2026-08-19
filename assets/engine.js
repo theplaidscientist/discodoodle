@@ -12,6 +12,15 @@
   var history = [];
   var currentCount = null;
   var currentPlainResult = '';
+  // Share image is speculatively built in the background the moment a
+  // result appears (see showShare) rather than on-demand when the Share
+  // button is tapped. This matters specifically for iOS Safari: navigator.
+  // share() only works within a short "transient activation" window right
+  // after a real click, and building the image (loading fonts/the disco
+  // ball PNG, encoding the canvas) takes just long enough to blow past that
+  // window if done inside the click handler itself. Pre-building means the
+  // blob is usually already sitting ready by the time someone taps Share.
+  var pendingShareBlob = null;
   var holiday = 'none'; // 'none' | 'halloween' | 'christmas'
   var holidayBackup = {}; // packId -> { key: items[] } saved before overlay swap
 
@@ -510,10 +519,21 @@
     currentPlainResult = text;
     document.getElementById('share-wrap').style.display = 'flex';
     document.getElementById('copy-feedback').textContent = '';
+    // Kick off the share image now, in the background, so it's already
+    // built by the time someone actually taps Share — see the note by
+    // pendingShareBlob above for why this timing matters.
+    pendingShareBlob = null;
+    var pack = window.SL_PACKS[currentPackId];
+    if (pack) {
+      buildShareImageBlob(pack).then(function (blob) { pendingShareBlob = blob; }).catch(function (err) {
+        console.error('Background share-image build failed (will retry on click):', err);
+      });
+    }
   }
   function hideShare() {
     var wrap = document.getElementById('share-wrap');
     if (wrap) wrap.style.display = 'none';
+    pendingShareBlob = null;
   }
   function copyResult() {
     var shareText = currentPlainResult;
@@ -525,6 +545,15 @@
       setTimeout(function () { fb.textContent = ''; }, 2000);
     }).catch(function () {
       document.getElementById('copy-feedback').textContent = 'Could not copy';
+    });
+  }
+
+  function loadImage(src) {
+    return new Promise(function (resolve, reject) {
+      var img = new Image();
+      img.onload = function () { resolve(img); };
+      img.onerror = reject;
+      img.src = src;
     });
   }
 
@@ -550,62 +579,139 @@
     return lines;
   }
 
+  // Brand palette, duplicated from assets/style.css :root on purpose — a
+  // canvas draw has no access to CSS custom properties.
+  var SHARE_BRAND_PINK = '#F4A6C8';
+  var SHARE_BRAND_MINT = '#2A9D8F';
+  var SHARE_INK = '#2e2622';
+  var SHARE_BORDER = '#e3d6c4';
+  var SHARE_CARD_BG = '#ffffff';
+  var SHARE_BALL_SRC = '/android-chrome-512x512.png';
+
   async function buildShareImageBlob(pack) {
     var W = 1080;
-    try { await document.fonts.load('400 84px Anton'); await document.fonts.ready; } catch (e) { /* fallback ok */ }
+    try {
+      await Promise.all([
+        document.fonts.load('400 70px Shrikhand'),
+        document.fonts.load('600 40px Poppins'),
+        document.fonts.load('700 26px Poppins')
+      ]);
+      await document.fonts.ready;
+    } catch (e) { /* fallback ok — draws with a system font instead */ }
+
+    var ballImg = null;
+    try { ballImg = await loadImage(SHARE_BALL_SRC); } catch (e) { /* drawn without it below */ }
+
     var measure = document.createElement('canvas').getContext('2d');
     var cardWidth = 880, cardPadX = 60, cardPadY = 56, fontSize = 40;
-    measure.font = '600 ' + fontSize + 'px -apple-system, Helvetica, Arial, sans-serif';
+    measure.font = '600 ' + fontSize + 'px Poppins, -apple-system, Helvetica, Arial, sans-serif';
     var sentenceText = currentPlainResult || 'Your Disco Doodle idea awaits...';
     var lines = wrapCanvasText(measure, sentenceText, cardWidth - cardPadX * 2);
     var lineHeight = Math.round(fontSize * 1.35);
     var cardHeight = cardPadY * 2 + lines.length * lineHeight;
-    var cardX = W / 2 - cardWidth / 2, cardY = 300;
-    var H = Math.max(680, cardY + cardHeight + 160);
+    var cardX = W / 2 - cardWidth / 2, cardY = 260;
+    var H = Math.max(640, cardY + cardHeight + 140);
     var canvas = document.createElement('canvas');
     canvas.width = W; canvas.height = H;
     var ctx = canvas.getContext('2d');
 
     var hc = holidayAccentColors();
-    var bg = hc ? hc.accentSoft : pack.bgColor;
-    ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+    var accent = hc || pack.accent;
+    ctx.fillStyle = accent.accentSoft; ctx.fillRect(0, 0, W, H);
 
-    ctx.save(); ctx.globalAlpha = 0.10; ctx.font = '220px sans-serif'; ctx.textAlign = 'left';
-    ctx.fillText(hc ? window.SL_HOLIDAY_DATA[holiday].accentEmoji : '✏️', -30, 260);
-    ctx.textAlign = 'right'; ctx.font = '200px sans-serif';
-    ctx.fillText('🎨', W + 30, H - 20); ctx.restore();
+    // Oversized disco-ball watermark, low-opacity, centered behind the
+    // wordmark and the card — a real PNG rather than the 🪩 emoji glyph,
+    // same reasoning as the site logo fix: emoji rendering is inconsistent
+    // across devices, the actual icon is consistent everywhere.
+    if (ballImg) {
+      var ballSize = Math.min(W, H) * 0.95;
+      ctx.save();
+      ctx.globalAlpha = 0.16;
+      ctx.drawImage(ballImg, W / 2 - ballSize / 2, cardY + cardHeight / 2 - ballSize / 2, ballSize, ballSize);
+      ctx.restore();
+    }
 
-    ctx.textAlign = 'center'; ctx.fillStyle = 'rgba(20,20,20,0.85)';
-    ctx.font = '400 76px Anton, sans-serif';
-    ctx.fillText(pack.wordmark, W / 2, 150);
+    // ---- Wordmark: "Disco" (pink) "Doodle" (mint) [disco-ball dot] "com" (ink) ----
+    ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+    ctx.font = '400 70px Shrikhand, cursive';
+    var wmY = 140;
+    var segDisco = 'Disco ', segDoodle = 'Doodle';
+    var dotSize = 44, dotGap = 8;
+    var wDisco = ctx.measureText(segDisco).width;
+    var wDoodle = ctx.measureText(segDoodle).width;
+    var wCom = ctx.measureText('com').width;
+    var totalW = wDisco + wDoodle + dotGap + dotSize + dotGap + wCom;
+    var wmX = W / 2 - totalW / 2;
+    ctx.fillStyle = SHARE_BRAND_PINK; ctx.fillText(segDisco, wmX, wmY); wmX += wDisco;
+    ctx.fillStyle = SHARE_BRAND_MINT; ctx.fillText(segDoodle, wmX, wmY); wmX += wDoodle + dotGap;
+    if (ballImg) ctx.drawImage(ballImg, wmX, wmY - dotSize * 0.86, dotSize, dotSize);
+    wmX += dotSize + dotGap;
+    ctx.fillStyle = SHARE_INK; ctx.fillText('com', wmX, wmY);
 
-    var badgeText = currentCount != null ? 'SKETCH IDEA #' + currentCount : '✨ FRESH IDEA';
-    ctx.font = '600 30px -apple-system, Helvetica, Arial, sans-serif';
-    var badgePadX = 28, badgeH = 56;
-    var badgeW = ctx.measureText(badgeText).width + badgePadX * 2;
-    var badgeX = W / 2 - badgeW / 2, badgeY = 190;
-    drawRoundedRect(ctx, badgeX, badgeY, badgeW, badgeH, badgeH / 2);
-    ctx.fillStyle = 'rgba(255,255,255,0.95)'; ctx.fill();
-    ctx.strokeStyle = 'rgba(0,0,0,0.2)'; ctx.lineWidth = 1; ctx.stroke();
-    ctx.fillStyle = '#2c2c2a'; ctx.textBaseline = 'middle';
-    ctx.fillText(badgeText, W / 2, badgeY + badgeH / 2 + 2); ctx.textBaseline = 'alphabetic';
-
-    ctx.save(); ctx.shadowColor = 'rgba(0,0,0,0.14)'; ctx.shadowBlur = 26; ctx.shadowOffsetY = 8;
+    // ---- Prompt card ----
+    ctx.save(); ctx.shadowColor = 'rgba(46,38,34,0.16)'; ctx.shadowBlur = 26; ctx.shadowOffsetY = 8;
     drawRoundedRect(ctx, cardX, cardY, cardWidth, cardHeight, 20);
-    ctx.fillStyle = '#ffffff'; ctx.fill(); ctx.restore();
+    ctx.fillStyle = SHARE_CARD_BG; ctx.fill(); ctx.restore();
     drawRoundedRect(ctx, cardX, cardY, cardWidth, cardHeight, 20);
-    ctx.strokeStyle = 'rgba(0,0,0,0.15)'; ctx.lineWidth = 1; ctx.stroke();
+    ctx.strokeStyle = SHARE_BORDER; ctx.lineWidth = 1.5; ctx.stroke();
 
-    ctx.fillStyle = '#2c2c2a'; ctx.textAlign = 'center';
-    ctx.font = '600 ' + fontSize + 'px -apple-system, Helvetica, Arial, sans-serif';
+    ctx.fillStyle = SHARE_INK; ctx.textAlign = 'center';
+    ctx.font = '600 ' + fontSize + 'px Poppins, -apple-system, Helvetica, Arial, sans-serif';
     var ty = cardY + cardPadY + fontSize * 0.8;
     lines.forEach(function (line) { ctx.fillText(line, W / 2, ty); ty += lineHeight; });
 
-    ctx.font = '400 24px -apple-system, Helvetica, Arial, sans-serif';
-    ctx.fillStyle = 'rgba(20,20,20,0.5)'; ctx.textAlign = 'right';
-    ctx.fillText('Disco Doodle — ' + SITE_URL.replace('https://', ''), W - 36, H - 36);
+    // ---- Bottom-right: which pack this idea came from ----
+    ctx.font = '700 26px Poppins, -apple-system, Helvetica, Arial, sans-serif';
+    ctx.fillStyle = accent.accent; ctx.textAlign = 'right';
+    ctx.fillText(pack.wordmark, W - 36, H - 36);
 
     return new Promise(function (resolve) { canvas.toBlob(resolve, 'image/png'); });
+  }
+
+  function shareOrDownloadBlob(pack, blob, btn, fb, originalLabel) {
+    if (!blob) {
+      fb.textContent = 'Could not create image';
+      btn.disabled = false; btn.textContent = originalLabel;
+      return;
+    }
+    var uniqueId = Date.now() + '' + Math.floor(Math.random() * 900 + 100);
+    var filename = 'discodoodle-' + pack.id + (currentCount != null ? '-' + currentCount : '') + '-' + uniqueId + '.png';
+    var file;
+    try { file = new File([blob], filename, { type: 'image/png' }); } catch (e) { file = null; }
+
+    // Native share sheet when the browser can share files (iOS Safari 15+,
+    // most modern mobile browsers) — this is what actually gives a one-tap
+    // "Save Image" (straight to Photos, not Files) and lets someone share
+    // directly to Messages/Instagram/etc. Must be called synchronously here,
+    // right off the click — no await before it — or iOS silently refuses it
+    // once the click's "transient activation" window has passed.
+    if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
+      navigator.share({ files: [file], title: 'Disco Doodle', text: currentPlainResult || 'My Disco Doodle idea' })
+        .then(function () {
+          fb.textContent = 'Shared!';
+          setTimeout(function () { fb.textContent = ''; }, 2500);
+        })
+        .catch(function (err) {
+          // AbortError = they just closed the share sheet — not a failure.
+          if (!err || err.name !== 'AbortError') {
+            console.error('Share failed:', err);
+            fb.textContent = 'Could not share';
+          }
+        })
+        .finally(function () { btn.disabled = false; btn.textContent = originalLabel; });
+      return;
+    }
+
+    // Desktop / no file-sharing support — plain download.
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+    fb.textContent = 'Image saved!';
+    setTimeout(function () { fb.textContent = ''; }, 2500);
+    btn.disabled = false; btn.textContent = originalLabel;
   }
 
   function saveImage() {
@@ -614,14 +720,28 @@
     var fb = document.getElementById('copy-feedback');
     btn.disabled = true;
     var originalLabel = btn.textContent;
+
+    if (pendingShareBlob) {
+      // Already built in the background (see showShare) — share/download
+      // happens immediately, synchronously, preserving iOS's activation
+      // window for navigator.share().
+      shareOrDownloadBlob(pack, pendingShareBlob, btn, fb, originalLabel);
+      return;
+    }
+
+    // Rare fallback: background build hasn't finished yet (very fast tap)
+    // or failed outright. Building it now means real async delay before we
+    // can act, so — deliberately — we only ever download in this path
+    // rather than attempt navigator.share(), which would likely be silently
+    // refused by iOS at this point anyway.
     btn.textContent = 'Preparing…';
     buildShareImageBlob(pack).then(function (blob) {
-      if (!blob) throw new Error('no blob');
+      var uniqueId = Date.now() + '' + Math.floor(Math.random() * 900 + 100);
+      var filename = 'discodoodle-' + pack.id + (currentCount != null ? '-' + currentCount : '') + '-' + uniqueId + '.png';
       var url = URL.createObjectURL(blob);
       var a = document.createElement('a');
       a.href = url;
-      var uniqueId = Date.now() + '' + Math.floor(Math.random() * 900 + 100);
-      a.download = 'sketchlab-' + pack.id + (currentCount != null ? '-' + currentCount : '') + '-' + uniqueId + '.png';
+      a.download = filename;
       document.body.appendChild(a); a.click(); document.body.removeChild(a);
       setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
       fb.textContent = 'Image saved!';
