@@ -2,13 +2,15 @@
    Injects nav markup on every page. Single source of truth so navigating
    between packs (or any standalone page) never feels like a different site.
 
-   The sidebar is the site's nav everywhere now — logo + pack list on the
-   left on desktop, collapsing to a hamburger-triggered slide-out drawer
-   with a backdrop below 900px. Every page (generator packs, Gallery,
-   Submit, Admin) renders it, so navigation is never hidden behind a page
-   you happen to be on. The old horizontal pill header (renderHeader below)
-   is kept as a fallback and no longer used by any shipped page, in case a
-   future standalone page ever wants the lighter-weight layout instead. */
+   Back to the horizontal pill header everywhere (renderHeader below) — full
+   120px logo, pack-switcher pills in a row underneath. The persistent left
+   sidebar (renderSidebar) was tried site-wide and then reverted: at real
+   viewport widths it read as a tall wall of empty space, and it forced the
+   logo down to 36px to fit the nav column. Sidebar code is kept below,
+   unused, rather than deleted — same as renderHeader was kept as an unused
+   fallback while the sidebar was the active layout, in case a future page
+   ever wants that persistent-nav treatment again. No page currently sets
+   window.SL_LAYOUT = 'sidebar', so renderHeader is what actually renders. */
 
 /* ---------------- Analytics ----------------
    Cloudflare Web Analytics — chosen over Plausible because Plausible has no
@@ -73,7 +75,7 @@
     if (sidebarMode) {
       renderSidebar(mount, packs, current, homeHref, fullLogo, inWall, forceRoot);
     } else {
-      renderHeader(mount, packs, current, fullLogo);
+      renderHeader(mount, fullLogo);
     }
   }
 
@@ -160,38 +162,20 @@
     });
   }
 
-  // ---------------- Header layout (Gallery / Submit / Admin) ----------------
-  function renderHeader(mount, packs, current, fullLogo) {
-    var otherPacks = packs.filter(function (p) { return p.id !== current; });
-    var pills = otherPacks.map(function (p) {
-      return '<button type="button" class="pack-pill" data-pack="' + p.id + '" ' +
-        'aria-label="Switch to ' + p.label + '">' + p.label + '</button>';
-    }).join('');
-
+  // ---------------- Header layout (site-wide) ----------------
+  // Just the logo — no pack-switcher pills here anymore. Switching packs
+  // now happens via the "other packs" links each generator page renders
+  // near the bottom of its content (see engine.js's otherPacksLineHtml),
+  // which are real crawlable <a> links rather than JS-only buttons. Kept
+  // this as its own function (rather than inlining into injectHeader)
+  // since renderSidebar is still here as a dormant fallback and both are
+  // called the same way.
+  function renderHeader(mount, fullLogo) {
     mount.innerHTML =
       '<header id="sl-header">' +
         fullLogo +
-        '<div id="pack-pills">' + pills + '</div>' +
       '</header>' +
       '<div id="holiday-accent" aria-hidden="true"></div>';
-
-    document.querySelectorAll('#pack-pills .pack-pill').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        var id = btn.getAttribute('data-pack');
-        if (typeof window.SL_onPackChange === 'function') {
-          // We're on the shell itself — switch packs in place.
-          window.SL_onPackChange(id);
-        } else {
-          // Standalone page (e.g. the Gallery, one directory down) — jump
-          // to that pack's dedicated landing page. Relative + prefixed with
-          // "../" on purpose: no hardcoded domain, so this keeps working
-          // through a domain change or a GitHub Pages subpath without an
-          // edit here.
-          var landing = (window.SL_PACK_LANDING && window.SL_PACK_LANDING[id]) || ('?pack=' + id);
-          window.location.href = '../' + landing;
-        }
-      });
-    });
   }
 
   if (document.readyState === 'loading') {
