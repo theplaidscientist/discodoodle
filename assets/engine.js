@@ -1,4 +1,4 @@
-/* Sketch Lab Central — shared generator engine.
+/* Disco Doodle — shared generator engine.
    One component reused by every pack: mode toggle, categories panel
    (collapsed by default, per-category on/off + view/edit/add/remove/clear/
    restore), spin animation, avoid-repeats, synthesized sound, copy/share,
@@ -15,9 +15,28 @@
   var holiday = 'none'; // 'none' | 'halloween' | 'christmas'
   var holidayBackup = {}; // packId -> { key: items[] } saved before overlay swap
 
-  var SITE_URL = 'https://theplaidscientist.github.io/sketchlab/';
+  // Derived from the live page instead of hardcoded, so shared/copied links
+  // are always correct — this used to be a hardcoded literal that pointed at
+  // the wrong path (missing "central") and would silently break every
+  // "Copy result" / share-image link. Deriving it means it also survives a
+  // future domain change with zero code edits.
+  var SITE_URL = window.location.origin + window.location.pathname;
   var DB_URL = 'https://daily-doodle-b7c57-default-rtdb.firebaseio.com';
   var COUNTER_PATH = '/counters/sketchIdeas.json';
+
+  // Maps each pack id to its dedicated, SEO-indexable landing page. Relative
+  // (no leading slash / no domain) on purpose — works unchanged whether the
+  // site lives at a custom domain root or under a GitHub Pages project
+  // subpath, and survives the next rename without an edit.
+  var PACK_LANDING = {
+    dailydoodle: 'daily-doodle.html',
+    monstermaker: 'monster-maker.html',
+    themepark: 'theme-park.html'
+  };
+  // Exposed read-only for header.js, which needs the same map when
+  // navigating back to a specific pack from a standalone page (e.g. the
+  // Gallery) rather than switching packs in place.
+  window.SL_PACK_LANDING = PACK_LANDING;
 
   // ---------------- Pack registration / lazy loading ----------------
   window.SL_registerPack = function (packDef) {
@@ -46,6 +65,16 @@
   window.SL_onPackChange = function (id) {
     resetTransientState();
     loadPack(id);
+    // Keep the address bar in sync with what's on screen, so a copy-pasted
+    // or bookmarked URL after switching packs via the header pills always
+    // lands back on the right generator instead of defaulting to Daily
+    // Doodle. Note: uses window.history explicitly — the local `history`
+    // variable above (recent-results list) shadows the global of the same
+    // name in this scope.
+    var landing = PACK_LANDING[id];
+    if (landing && window.location.pathname.split('/').pop() !== landing) {
+      window.history.pushState({ pack: id }, '', landing + window.location.search.replace(/[?&]pack=[^&]*/, '').replace(/^&/, '?'));
+    }
   };
 
   function resetTransientState() {
@@ -62,6 +91,8 @@
     applyAccent(pack.accent);
     if (window.SL_renderHeader) window.SL_renderHeader();
     renderShell(pack);
+    document.title = pack.label + ' — Disco Doodle';
+    playDiscoIntro();
   }
 
   function applyAccent(accent) {
@@ -468,7 +499,7 @@
   function copyResult() {
     var shareText = currentPlainResult;
     if (currentCount != null) shareText += ' (Sketch Idea #' + currentCount + ')';
-    shareText += ' — via Sketch Lab Central: ' + SITE_URL;
+    shareText += ' — via Disco Doodle: ' + SITE_URL;
     navigator.clipboard.writeText(shareText).then(function () {
       var fb = document.getElementById('copy-feedback');
       fb.textContent = 'Copied!';
@@ -506,7 +537,7 @@
     var measure = document.createElement('canvas').getContext('2d');
     var cardWidth = 880, cardPadX = 60, cardPadY = 56, fontSize = 40;
     measure.font = '600 ' + fontSize + 'px -apple-system, Helvetica, Arial, sans-serif';
-    var sentenceText = currentPlainResult || 'Your Sketch Lab idea awaits...';
+    var sentenceText = currentPlainResult || 'Your Disco Doodle idea awaits...';
     var lines = wrapCanvasText(measure, sentenceText, cardWidth - cardPadX * 2);
     var lineHeight = Math.round(fontSize * 1.35);
     var cardHeight = cardPadY * 2 + lines.length * lineHeight;
@@ -553,7 +584,7 @@
 
     ctx.font = '400 24px -apple-system, Helvetica, Arial, sans-serif';
     ctx.fillStyle = 'rgba(20,20,20,0.5)'; ctx.textAlign = 'right';
-    ctx.fillText('Sketch Lab Central — ' + SITE_URL.replace('https://', ''), W - 36, H - 36);
+    ctx.fillText('Disco Doodle — ' + SITE_URL.replace('https://', ''), W - 36, H - 36);
 
     return new Promise(function (resolve) { canvas.toBlob(resolve, 'image/png'); });
   }
@@ -594,6 +625,108 @@
     if (history.length === 0) { wrap.style.display = 'none'; return; }
     wrap.style.display = 'block';
     list.innerHTML = history.map(function (h) { return '<li>' + h + '</li>'; }).join('');
+  }
+
+  // ---------------- Disco Doodle intro (plays once per page load) ----------------
+  // Fires the first time any pack activates on this page — i.e. once on
+  // real load, never again when switching packs via the header pills, since
+  // discoIntroPlayed only flips once per page (a fresh page load resets it,
+  // which is exactly "once per visit" rather than "once ever" or "every
+  // pack switch"). Purely decorative: wrapped in try/catch and gated on the
+  // existing sound toggle so it can never break the generator itself.
+  var discoIntroPlayed = false;
+  var DISCO_COLORS = ['#ff2d95', '#00e5ff', '#ffe600', '#a832ff', '#ff8a00', '#39ff6a'];
+
+  function playDiscoIntro() {
+    if (discoIntroPlayed) return;
+    discoIntroPlayed = true;
+    try {
+      var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      var wrap = document.createElement('div');
+      wrap.id = 'dd-disco-intro';
+      wrap.setAttribute('aria-hidden', 'true');
+
+      var ball = document.createElement('div');
+      ball.id = 'dd-disco-ball';
+      ball.textContent = '🪩';
+      wrap.appendChild(ball);
+
+      if (!reduceMotion) {
+        var spotCount = 14;
+        for (var i = 0; i < spotCount; i++) {
+          var spot = document.createElement('div');
+          spot.className = 'dd-light-spot';
+          var color = DISCO_COLORS[i % DISCO_COLORS.length];
+          spot.style.background = 'radial-gradient(circle, ' + color + ' 0%, transparent 70%)';
+          spot.style.left = Math.round(Math.random() * 90) + 'vw';
+          spot.style.top = Math.round(Math.random() * 80) + 'vh';
+          spot.style.animationDelay = (Math.random() * 0.8) + 's, ' + (Math.random() * 2) + 's';
+          wrap.appendChild(spot);
+        }
+      }
+
+      document.body.appendChild(wrap);
+      playDiscoSound();
+
+      // Ball drops + lands around 0.7s in; whole spectacle (ball + light
+      // spots) reads as "about 3 seconds" per the brief, then fades and
+      // removes itself so it never lingers or gets in the way.
+      setTimeout(function () { wrap.classList.add('dd-fade-out'); }, 2500);
+      setTimeout(function () { if (wrap.parentNode) wrap.remove(); }, 3200);
+    } catch (e) {
+      console.error('Disco intro failed:', e);
+    }
+  }
+
+  function playDiscoSound() {
+    if (!soundEnabled) return;
+    try {
+      var ctx = getAudioCtx();
+      var now = ctx.currentTime;
+
+      // Low "drop" thump timed to land right as the ball hits bottom.
+      var kick = ctx.createOscillator(), kickGain = ctx.createGain();
+      kick.type = 'sine';
+      kick.frequency.setValueAtTime(160, now + 0.55);
+      kick.frequency.exponentialRampToValueAtTime(45, now + 0.72);
+      kickGain.gain.setValueAtTime(0.0001, now + 0.55);
+      kickGain.gain.exponentialRampToValueAtTime(0.35, now + 0.58);
+      kickGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.85);
+      kick.connect(kickGain).connect(ctx.destination);
+      kick.start(now + 0.55); kick.stop(now + 0.9);
+
+      // Sparkly ascending arpeggio (C5-E5-G5-B5-D6) right after the drop.
+      var notes = [523.25, 659.25, 783.99, 987.77, 1174.66];
+      notes.forEach(function (freq, i) {
+        var start = now + 0.6 + i * 0.09;
+        var osc = ctx.createOscillator(), gain = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0.0001, start);
+        gain.gain.exponentialRampToValueAtTime(0.14, start + 0.03);
+        gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.4);
+        osc.connect(gain).connect(ctx.destination);
+        osc.start(start); osc.stop(start + 0.45);
+      });
+
+      // Funky filtered "wah" bass stab underneath, swept via a lowpass
+      // filter for the classic disco/funk wah-wah color.
+      var bass = ctx.createOscillator(), bassGain = ctx.createGain(), filter = ctx.createBiquadFilter();
+      bass.type = 'sawtooth';
+      bass.frequency.value = 110;
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(300, now + 0.6);
+      filter.frequency.exponentialRampToValueAtTime(1800, now + 0.75);
+      filter.frequency.exponentialRampToValueAtTime(300, now + 1.1);
+      bassGain.gain.setValueAtTime(0.0001, now + 0.6);
+      bassGain.gain.exponentialRampToValueAtTime(0.18, now + 0.65);
+      bassGain.gain.exponentialRampToValueAtTime(0.0001, now + 1.15);
+      bass.connect(filter).connect(bassGain).connect(ctx.destination);
+      bass.start(now + 0.6); bass.stop(now + 1.2);
+    } catch (e) {
+      console.error('Disco sound failed:', e);
+    }
   }
 
   // ---------------- Synthesized sound (identical to original apps) ----------------

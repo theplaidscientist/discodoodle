@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sketch Lab Gallery — Admin</title>
+<title>Disco Doodle Gallery — Admin</title>
 <meta name="robots" content="noindex, nofollow">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%A7%AA%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -70,7 +70,7 @@
 <div id="sl-header-mount"></div>
 
 <main>
-  <h1 class="wall-title">🛠️ Sketch Lab Gallery — Admin</h1>
+  <h1 class="wall-title">🛠️ Disco Doodle Gallery — Admin</h1>
   <p class="wall-sub">Private moderation page. Sign in to review pending submissions and manage what's live in the gallery.</p>
 
   <section id="signin-section">
@@ -255,7 +255,7 @@
     var meta = document.createElement('div');
     meta.className = 'pend-meta';
     meta.innerHTML = '<strong>' + escapeHtml(entry.name || 'Anonymous Artist') + '</strong><br>' +
-      escapeHtml(entry.pack || 'Sketch Lab') + '<br>Uploaded: ' + formatDate(entry.submittedAt);
+      escapeHtml(entry.pack || 'Disco Doodle') + '<br>Uploaded: ' + formatDate(entry.submittedAt);
     card.appendChild(meta);
 
     var actions = document.createElement('div');
@@ -319,7 +319,7 @@
   function approve(entry) {
     var payload = {
       name: entry.name || 'Anonymous Artist',
-      pack: entry.pack || 'Sketch Lab',
+      pack: entry.pack || 'Disco Doodle',
       imageUrl: entry.imageUrl,
       storagePath: entry.storagePath || null,
       submittedAt: entry.submittedAt || null,
@@ -399,7 +399,7 @@
     var meta = document.createElement('div');
     meta.className = 'pend-meta';
     meta.innerHTML = '<strong>' + escapeHtml(entry.name || 'Anonymous Artist') + '</strong><br>' +
-      escapeHtml(entry.pack || 'Sketch Lab') + '<br>Uploaded: ' + formatDate(entry.submittedAt);
+      escapeHtml(entry.pack || 'Disco Doodle') + '<br>Uploaded: ' + formatDate(entry.submittedAt);
     card.appendChild(meta);
 
     var actions = document.createElement('div');

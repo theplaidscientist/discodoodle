@@ -1,4 +1,4 @@
-/* Sketch Lab Central — universal footer
+/* Disco Doodle — universal footer
    Truly identical on every page now: brand block, GitHub/License/Contact
    links, exact copyright/license line preserved from the original Plaid
    Labs footer, then a row of quick links (the three generator packs on the
@@ -20,16 +20,16 @@
   var MAIL_USER = 'plaidlabs';
   var MAIL_HOST = 'gmail.com';
 
-  var SHELL_URL = 'https://theplaidscientist.github.io/sketchlabcentral/';
-  var GALLERY_URL = 'https://theplaidscientist.github.io/sketchlabcentral/wall/';
-  var SUBMIT_URL = 'https://theplaidscientist.github.io/sketchlabcentral/wall/submit.html';
+  var SHELL_URL = 'https://discodoodle.com/';
+  var GALLERY_URL = 'https://discodoodle.com/wall/';
+  var SUBMIT_URL = 'https://discodoodle.com/wall/submit.html';
 
   function injectFooter() {
     var mount = document.getElementById('sl-footer-mount');
     if (!mount) return;
 
     // Pages set window.SL_PAGE = 'gallery' to identify themselves, so the
-    // footer can skip the self-referential "Sketch Lab Gallery" link when
+    // footer can skip the self-referential "Disco Doodle Gallery" link when
     // you're already on it, and show pack links instead.
     var onGalleryPage = window.SL_PAGE === 'gallery';
 
@@ -37,12 +37,12 @@
       ? '<a href="' + SHELL_URL + '?pack=dailydoodle" class="holiday-chip">Daily Doodle</a> ' +
         '<a href="' + SHELL_URL + '?pack=monstermaker" class="holiday-chip">Monster Maker</a> ' +
         '<a href="' + SHELL_URL + '?pack=themepark" class="holiday-chip">Theme Park Edition</a> '
-      : '<a href="' + GALLERY_URL + '" class="holiday-chip">🖼️ Sketch Lab Gallery</a> ' +
+      : '<a href="' + GALLERY_URL + '" class="holiday-chip">🖼️ Disco Doodle Gallery</a> ' +
         '<a href="' + SUBMIT_URL + '" class="holiday-chip">🎨 Share Your Art</a> ';
 
     mount.innerHTML =
       '<footer id="sl-footer">' +
-        '<span class="sl-footer-brand">Sketch Lab Central<br>is a division of<br>' +
+        '<span class="sl-footer-brand">Disco Doodle<br>is a division of<br>' +
           '<a href="https://theplaidscientist.github.io/" class="sl-footer-parent">' + PLAID_ICON + 'Plaid Labs</a></span>' +
         '<a href="https://github.com/theplaidscientist">GitHub</a> · ' +
         '<a href="https://theplaidscientist.github.io/CONTENT-LICENSE.md">License</a> · ' +
@@ -55,7 +55,7 @@
 
     var contactLink = document.getElementById('sl-contact-link');
     if (contactLink) {
-      contactLink.href = 'mailto:' + MAIL_USER + '@' + MAIL_HOST + '?subject=' + encodeURIComponent('Sketch Lab Central');
+      contactLink.href = 'mailto:' + MAIL_USER + '@' + MAIL_HOST + '?subject=' + encodeURIComponent('Disco Doodle');
     }
   }
 

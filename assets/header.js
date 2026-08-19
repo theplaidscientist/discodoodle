@@ -1,4 +1,4 @@
-/* Sketch Lab Central — universal header
+/* Disco Doodle — universal header
    Injects identical header markup on every page. Single source of truth so
    navigating between packs (or any standalone page, e.g. the Gallery)
    never feels like a different site.
@@ -27,7 +27,7 @@
 
     mount.innerHTML =
       '<header id="sl-header">' +
-        '<div class="sl-brand"><span class="sl-dot" aria-hidden="true">✏️</span>Sketch Lab Central</div>' +
+        '<div class="sl-brand"><span class="sl-dot" aria-hidden="true">🪩</span>Disco Doodle</div>' +
         '<div id="pack-pills">' + pills + '</div>' +
       '</header>' +
       '<div id="holiday-accent" aria-hidden="true"></div>';
@@ -39,10 +39,13 @@
           // We're on the shell itself — switch packs in place.
           window.SL_onPackChange(id);
         } else {
-          // Standalone page (e.g. the Gallery) — jump back to the shell
-          // with that pack pre-selected, so the header never feels like
-          // a dead end.
-          window.location.href = 'https://theplaidscientist.github.io/sketchlabcentral/?pack=' + id;
+          // Standalone page (e.g. the Gallery, one directory down) — jump
+          // to that pack's dedicated landing page. Relative + prefixed with
+          // "../" on purpose: no hardcoded domain, so this keeps working
+          // through a domain change or a GitHub Pages subpath without an
+          // edit here.
+          var landing = (window.SL_PACK_LANDING && window.SL_PACK_LANDING[id]) || ('?pack=' + id);
+          window.location.href = '../' + landing;
         }
       });
     });

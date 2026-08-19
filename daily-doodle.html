@@ -3,18 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Disco Doodle — free drawing &amp; art prompt generators</title>
-<meta name="description" content="Disco Doodle — a division of Plaid Labs. Daily Doodle, Monster Maker, and Theme Park Edition drawing-prompt generators in one place. Free, no signup.">
-<link rel="canonical" href="https://discodoodle.com/">
+<title>Daily Doodle — free drawing prompt generator | Disco Doodle</title>
+<meta name="description" content="Daily Doodle: a free, no-signup random drawing prompt generator. Spin for an animal, occupation, prop, style and more — instant art ideas for kids, classrooms, and anyone with blank-page paralysis.">
+<link rel="canonical" href="https://discodoodle.com/daily-doodle.html">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Disco Doodle — free drawing &amp; art prompt generators">
-<meta property="og:description" content="Daily Doodle, Monster Maker, and Theme Park Edition drawing-prompt generators in one place. Free, no signup.">
-<meta property="og:image" content="https://discodoodle.com/assets/og/og-home.png">
-<meta property="og:url" content="https://discodoodle.com/">
+<meta property="og:title" content="Daily Doodle — free drawing prompt generator">
+<meta property="og:description" content="Ideas for your Noodle! A free, no-signup drawing prompt generator — spin for an instant art idea.">
+<meta property="og:image" content="https://discodoodle.com/assets/og/og-daily-doodle.png">
+<meta property="og:url" content="https://discodoodle.com/daily-doodle.html">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Disco Doodle — free drawing &amp; art prompt generators">
-<meta name="twitter:description" content="Daily Doodle, Monster Maker, and Theme Park Edition drawing-prompt generators in one place. Free, no signup.">
-<meta name="twitter:image" content="https://discodoodle.com/assets/og/og-home.png">
+<meta name="twitter:title" content="Daily Doodle — free drawing prompt generator">
+<meta name="twitter:description" content="Ideas for your Noodle! A free, no-signup drawing prompt generator — spin for an instant art idea.">
+<meta name="twitter:image" content="https://discodoodle.com/assets/og/og-daily-doodle.png">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%A7%AA%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -26,16 +26,12 @@
 <div id="sl-header-mount"></div>
 
 <main id="app" aria-live="polite">
-  <!-- Populated by assets/engine.js once the default pack loads -->
+  <!-- Populated by assets/engine.js -->
 </main>
 
 <div id="sl-footer-mount"></div>
 
 <script>
-  // Lightweight pack manifest — just id/label/src, so the header's pack
-  // selector can render instantly. Each pack's actual category data is only
-  // fetched when the user selects it (Theme Park Edition's data set is the
-  // largest, so this keeps first paint fast).
   window.SL_PACK_LIST = [
     { id: 'dailydoodle', label: 'Daily Doodle', src: 'assets/packs/dailydoodle.js' },
     { id: 'monstermaker', label: 'Monster Maker', src: 'assets/packs/monstermaker.js' },
@@ -48,7 +44,6 @@
 <script src="assets/engine.js" defer></script>
 <script defer>
   document.addEventListener('DOMContentLoaded', function () {
-    // Daily Doodle is the main/landing theme pack of Disco Doodle.
     window.SL_boot('dailydoodle');
   });
 </script>

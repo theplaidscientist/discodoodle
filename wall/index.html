@@ -3,8 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sketch Lab Gallery — Sketch Lab Central</title>
-<meta name="description" content="Stroll the Sketch Lab Gallery — art made from Sketch Lab Central's drawing prompts, submitted by fellow artists.">
+<title>Disco Doodle Gallery — Disco Doodle</title>
+<meta name="description" content="Stroll the Disco Doodle Gallery — art made from Disco Doodle's drawing prompts, submitted by fellow artists.">
+<link rel="canonical" href="https://discodoodle.com/wall/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Disco Doodle Gallery — Disco Doodle">
+<meta property="og:description" content="Art made from Disco Doodle's drawing prompts, submitted by fellow artists.">
+<meta property="og:image" content="https://discodoodle.com/assets/og/og-home.png">
+<meta property="og:url" content="https://discodoodle.com/wall/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Disco Doodle Gallery — Disco Doodle">
+<meta name="twitter:description" content="Art made from Disco Doodle's drawing prompts, submitted by fellow artists.">
+<meta name="twitter:image" content="https://discodoodle.com/assets/og/og-home.png">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%A7%AA%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -150,7 +160,7 @@
 <div id="sl-header-mount"></div>
 
 <main>
-  <h1 class="wall-title">🖼️ Sketch Lab Gallery</h1>
+  <h1 class="wall-title">🖼️ Disco Doodle Gallery</h1>
   <p class="wall-sub">Gallery scrolls left to right — tap a photo to see it in greater detail.</p>
 
   <div id="gallery-scroll">
@@ -205,8 +215,8 @@
   var lightbox = $('lightbox');
   function openLightbox(entry) {
     $('lightbox-img').src = entry.imageUrl;
-    $('lightbox-img').alt = (entry.name || 'Anonymous Artist') + "'s " + (entry.pack || 'Sketch Lab') + ' creation';
-    $('lightbox-cap').textContent = (entry.name || 'Anonymous Artist') + ' · ' + (entry.pack || 'Sketch Lab') + ' · ' + formatDate(entry.submittedAt);
+    $('lightbox-img').alt = (entry.name || 'Anonymous Artist') + "'s " + (entry.pack || 'Disco Doodle') + ' creation';
+    $('lightbox-cap').textContent = (entry.name || 'Anonymous Artist') + ' · ' + (entry.pack || 'Disco Doodle') + ' · ' + formatDate(entry.submittedAt);
     lightbox.classList.add('open');
     lightbox.setAttribute('aria-hidden', 'false');
   }
@@ -239,8 +249,8 @@
         var loopEntries = entries.length > 2 ? entries.concat(entries) : entries;
         track.innerHTML = loopEntries.map(function (e, i) {
           var isDuplicate = i >= entries.length;
-          var caption = escapeHtml(e.name || 'Anonymous Artist') + ' · ' + escapeHtml(e.pack || 'Sketch Lab') + ' · ' + formatDate(e.submittedAt);
-          var alt = escapeHtml((e.name || 'Anonymous Artist') + "'s " + (e.pack || 'Sketch Lab') + ' creation');
+          var caption = escapeHtml(e.name || 'Anonymous Artist') + ' · ' + escapeHtml(e.pack || 'Disco Doodle') + ' · ' + formatDate(e.submittedAt);
+          var alt = escapeHtml((e.name || 'Anonymous Artist') + "'s " + (e.pack || 'Disco Doodle') + ' creation');
           return (
             '<figure class="frame-card" tabindex="' + (isDuplicate ? '-1' : '0') + '" ' +
               (isDuplicate ? 'aria-hidden="true" ' : 'role="button" aria-label="View ' + alt + ' full size" ') +

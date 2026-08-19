@@ -1,4 +1,4 @@
-/* Sketch Lab Central — Holiday Overlay data (opt-in only, never auto-enabled).
+/* Disco Doodle — Holiday Overlay data (opt-in only, never auto-enabled).
    Same editing pattern as every other category: toggle, view/edit list,
    remove items, add custom ones, Clear/Restore. */
 window.SL_HOLIDAY_DATA = {

@@ -1,4 +1,4 @@
-/* Sketch Lab Central — Monster Maker pack
+/* Disco Doodle — Monster Maker pack
    Preserves every original category/item from theplaidscientist.github.io/monstermaker/
    exactly (order-preserved), "supersized" to up to 10 items per category. Eyestalks
    stays Yes/No since it's a binary trait, not a pick-list. */
@@ -85,7 +85,7 @@
     buildSentence: buildSentence,
     wordmark: 'MONSTER MAKER',
     bgColor: '#6f7a3f',
-    watermark: 'Sketch Lab Central — Monster Maker',
+    watermark: 'Disco Doodle — Monster Maker',
     resultLabel: 'Sketch Idea',
     holidayMap: { outfit: null, snack: null, prop: 'prop' }
   });

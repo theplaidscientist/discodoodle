@@ -1,4 +1,4 @@
-/* Sketch Lab Central — shared shell styles
+/* Disco Doodle — shared shell styles
    Base typography / spacing / layout grid stay identical across every pack.
    Only CSS custom properties under [data-pack] / [data-holiday] shift accents. */
 
@@ -318,4 +318,72 @@ h1.pack-title {
 
 @media (min-width: 768px) {
   body { padding: 0 1.5rem 2rem; }
+}
+
+/* ---------- Disco Doodle intro (plays once per page load, ~3s total) ---------- */
+#dd-disco-intro {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  overflow: hidden;
+}
+#dd-disco-ball {
+  position: absolute;
+  left: 50%;
+  top: -120px;
+  font-size: 64px;
+  line-height: 1;
+  transform: translateX(-50%);
+  filter: drop-shadow(0 12px 18px rgba(0,0,0,.35));
+  animation:
+    dd-ball-drop 0.7s cubic-bezier(.32,1.6,.55,1) forwards,
+    dd-ball-sway 1.4s ease-in-out 0.7s 2;
+}
+@keyframes dd-ball-drop {
+  0%   { top: -120px; }
+  70%  { top: 54px; }
+  85%  { top: 40px; }
+  100% { top: 48px; }
+}
+@keyframes dd-ball-sway {
+  0%, 100% { transform: translateX(-50%) rotate(-6deg); }
+  50%      { transform: translateX(-50%) rotate(6deg); }
+}
+.dd-light-spot {
+  position: absolute;
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  opacity: 0;
+  mix-blend-mode: screen;
+  filter: blur(2px);
+  animation: dd-spot-flicker 0.9s ease-in-out infinite, dd-spot-drift 3s linear infinite;
+  animation-delay: inherit;
+}
+@keyframes dd-spot-flicker {
+  0%, 100% { opacity: 0; }
+  50%      { opacity: .85; }
+}
+@keyframes dd-spot-drift {
+  0%   { transform: translate(0,0); }
+  25%  { transform: translate(40px,-30px); }
+  50%  { transform: translate(-30px,20px); }
+  75%  { transform: translate(20px,40px); }
+  100% { transform: translate(0,0); }
+}
+#dd-disco-intro.dd-fade-out #dd-disco-ball {
+  transition: opacity .5s ease, top .5s ease;
+  animation-play-state: paused;
+  opacity: 0;
+  top: 10px;
+}
+#dd-disco-intro.dd-fade-out .dd-light-spot {
+  transition: opacity .5s ease;
+  animation-play-state: paused;
+  opacity: 0 !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  #dd-disco-ball { animation: none !important; top: 20px; }
+  .dd-light-spot { animation: none !important; opacity: .5; }
 }

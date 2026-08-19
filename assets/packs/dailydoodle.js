@@ -1,4 +1,4 @@
-/* Sketch Lab Central — Daily Doodle pack
+/* Disco Doodle — Daily Doodle pack
    Preserves every original category/item from theplaidscientist.github.io/dailydoodle/
    exactly (order-preserved), "supersized" to up to 10 items per category as requested.
    New items appended after the originals are marked below. */
@@ -76,7 +76,7 @@
     buildSentence: buildSentence,
     wordmark: 'DAILY DOODLE',
     bgColor: '#edeff2',
-    watermark: 'Sketch Lab Central — Daily Doodle',
+    watermark: 'Disco Doodle — Daily Doodle',
     resultLabel: 'Sketch Idea',
     holidayMap: { outfit: 'outfit', snack: null, prop: 'prop' }
   });

@@ -1,4 +1,4 @@
-/* Sketch Lab Central — Theme Park Edition pack (new)
+/* Disco Doodle — Theme Park Edition pack (new)
    Template: [Character] [Action]-ing a [Snack] at/on [Attraction]
    Beginner (default): Character, Snack, Attraction/Location
    Advanced adds: Action, Outfit, Mood
@@ -284,7 +284,7 @@
     buildSentence: buildSentence,
     wordmark: 'THEME PARK EDITION',
     bgColor: '#3a1a4d',
-    watermark: 'Sketch Lab Central — Theme Park Edition',
+    watermark: 'Disco Doodle — Theme Park Edition',
     resultLabel: 'Sketch Idea',
     // Snack and Outfit are both handled entirely by refreshPools() (base
     // pool + park-dependent extras + current holiday content, if any)
