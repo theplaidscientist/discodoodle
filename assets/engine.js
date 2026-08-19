@@ -666,7 +666,7 @@
     fillOutlinedText(ctx, segDoodle, wmX, wmY, SHARE_BRAND_MINT, wmStroke); wmX += wDoodle + dotGap;
     if (ballImg) ctx.drawImage(ballImg, wmX, wmY - dotSize * 0.86, dotSize, dotSize);
     wmX += dotSize + dotGap;
-    fillOutlinedText(ctx, 'com', wmX, wmY, SHARE_INK, wmStroke);
+    fillOutlinedText(ctx, 'com', wmX, wmY, SHARE_BRAND_PINK, wmStroke);
 
     // ---- Prompt card ----
     ctx.save(); ctx.shadowColor = 'rgba(46,38,34,0.16)'; ctx.shadowBlur = 26; ctx.shadowOffsetY = 8;
