@@ -3,19 +3,28 @@
    Only CSS custom properties under [data-pack] / [data-holiday] shift accents. */
 
 :root {
-  --surface-0: #edeff2;
-  --surface-1: #f1efe8;
+  /* Warm neutral base — replaces the old cool-gray palette so the whole
+     shell reads as one piece with the peach/pink/mint brand accents. */
+  --surface-0: #fbf3e9;
+  --surface-1: #f5e9da;
   --surface-2: #ffffff;
-  --text-primary: #2c2c2a;
-  --text-secondary: #5f5e5a;
-  --text-muted: #888780;
-  --border: #b8b6ac;
+  --text-primary: #2e2622;
+  --text-secondary: #6b5f55;
+  --text-muted: #9c9086;
+  --border: #e3d6c4;
   --radius: 8px;
 
-  /* Default (Daily Doodle) accent — overridden per pack below */
-  --accent: #242B5C;
-  --accent-contrast: #ffffff;
-  --accent-soft: #e1e4fb;
+  /* Disco Doodle brand palette — fixed regardless of page theme, used for
+     the logo lockup and anywhere the brand colors need to stay constant. */
+  --brand-peach: #F4A261;
+  --brand-pink: #F4A6C8;
+  --brand-mint: #2A9D8F;
+
+  /* Default (Daily Doodle) accent — overridden per pack in engine.js,
+     and by the Gallery's own theme below. */
+  --accent: #F4A6C8;
+  --accent-contrast: #2e2622;
+  --accent-soft: #fbe0ea;
 }
 
 * { box-sizing: border-box; }
@@ -23,7 +32,7 @@
 html { scroll-behavior: smooth; }
 
 body {
-  font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   background: var(--surface-0);
   color: var(--text-primary);
   max-width: 760px;
@@ -37,30 +46,51 @@ a { color: inherit; }
 /* ---------- Universal header ---------- */
 #sl-header {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 14px 0;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 20px 0 16px;
   margin-bottom: 0.5rem;
   border-bottom: 0.5px solid var(--border);
-  flex-wrap: wrap;
 }
-#sl-header .sl-brand {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-family: 'Russo One', sans-serif;
-  font-size: 20px;
-  letter-spacing: 0.02em;
-  white-space: nowrap;
+
+/* ---------- Logo lockup — Shrikhand, stacked, left-justified, outlined.
+   120px is the "true" size from the brand style guide; clamp() scales it
+   down on narrow viewports so it never breaks the layout on mobile while
+   still hitting 120px on a normal desktop width. ---------- */
+.dd-logo {
+  position: relative;
+  display: inline-block;
+  line-height: 0.82;
+  text-align: left;
+  text-decoration: none;
 }
-#sl-header .sl-brand .sl-dot {
-  font-size: 16px;
+.dd-logo:hover .dd-logo-line { filter: brightness(1.06); }
+.dd-logo-line {
+  display: block;
+  font-family: 'Shrikhand', cursive;
+  font-weight: 400;
+  font-size: clamp(34px, 9vw, 120px);
+  letter-spacing: 0.01em;
+  -webkit-text-stroke-width: 0.045em;
+  -webkit-text-stroke-color: var(--text-primary);
+  paint-order: stroke fill;
+  margin: 0;
+}
+.dd-logo-line--disco { color: var(--brand-pink); }
+.dd-logo-line--doodle { color: var(--brand-mint); }
+.dd-logo-ball {
+  position: absolute;
+  top: -0.15em;
+  right: -0.05em;
+  font-size: clamp(18px, 4vw, 46px);
   line-height: 1;
-  flex: 0 0 auto;
+  transform: rotate(12deg);
+  filter: drop-shadow(0 3px 4px rgba(0,0,0,.25));
 }
-#pack-pills { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+#pack-pills { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-start; }
 .pack-pill {
+  font-family: 'Poppins', sans-serif;
   font-size: 12px;
   font-weight: 600;
   padding: 7px 14px;
@@ -76,10 +106,10 @@ a { color: inherit; }
 
 /* ---------- Page title / result area ---------- */
 h1.pack-title {
-  font-family: 'Russo One', sans-serif;
-  font-size: 30px;
-  font-weight: 400;
-  letter-spacing: 0.02em;
+  font-family: 'Poppins', sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
   margin: 1rem 0 0;
   text-align: center;
 }
@@ -297,7 +327,7 @@ h1.pack-title {
 }
 #sl-footer a { text-decoration: underline; text-underline-offset: 2px; }
 #sl-footer .sl-footer-brand { display: block; margin-bottom: 4px; line-height: 1.5; }
-#sl-footer .sl-footer-brand a { font-family: 'Russo One', sans-serif; text-decoration: none; }
+#sl-footer .sl-footer-brand a { font-family: 'Poppins', sans-serif; font-weight: 700; text-decoration: none; }
 #sl-footer .sl-footer-brand a:hover { text-decoration: underline; }
 /* "Plaid Labs" — the parent brand — set apart from the rest of the footer
    with larger type so it reads as the more prominent name of the two. */
@@ -312,8 +342,7 @@ h1.pack-title {
   #result-row { grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 8px; }
   .result-card { font-size: 13px; padding: 0.75rem 0.4rem; }
   #fill-blank { font-size: 15px; }
-  #sl-header { padding: 10px 0; }
-  #pack-pills { justify-content: flex-start; flex: 1 1 100%; }
+  #sl-header { padding: 14px 0 12px; gap: 8px; }
 }
 
 @media (min-width: 768px) {

@@ -1,54 +1,48 @@
-# Disco Doodle — Domain Setup Package
+# Disco Doodle — Color & Font Rescheme
 
-This package finishes wiring `discodoodle.com` to your GitHub Pages site. It's cumulative — it includes everything from the earlier rebrand package (Disco Doodle branding, disco ball intro) PLUS the domain-specific changes below. You can apply this package on its own; you don't need to apply the earlier one first.
+This package restyles the whole site (generator pages, Gallery, Submit, and Admin) to match the Disco Doodle brand style guide: the peach/pink/mint palette and the Shrikhand + Poppins font pairing.
 
-## What changed in this package
-
-1. **New `CNAME` file** at the repo root containing `discodoodle.com` — this is what tells GitHub Pages to serve your site on the custom domain instead of (or in addition to) the `github.io` URL.
-2. **Every hardcoded URL** across the site (canonical links, Open Graph/Twitter image URLs, `sitemap.xml`, `robots.txt`, and the footer's share links) now points to `https://discodoodle.com/...` instead of the old placeholder `theplaidscientist.github.io/sketchlabcentral` path.
-3. Cleaned up a handful of leftover "update this once the domain is live" comments that are now stale since the URLs are already updated.
+This is cumulative — it includes everything from the previous domain-setup package too, so you can apply it directly without applying that one first. It also supersedes the first version of this color package — the pink was wrong in that one (see note below), this version fixes it.
 
 ## How to apply it
 
-Copy everything from this package into your local clone of the `sketchlabcentral` repo, overwriting existing files, then commit and push. (See the bottom of this file for an easier, no-copy-paste way to do this going forward.)
+Same drag-and-drop flow as last time: unzip this package, drag everything into your local `discodoodle` repo folder in File Explorer (overwrite when asked), then in GitHub Desktop review the changes, commit, and push.
 
-## Steps to actually go live on discodoodle.com
+## A correction: the pink hex code in your style guide was wrong
 
-**1. Add DNS records at Porkbun.**
-In Porkbun's DNS management for `discodoodle.com`, add:
+Your style guide image labeled "Gentle Pink (Bubblegum Pink)" with the hex `#E76F51` — but that hex is actually a coral/orange-red, not pink at all. I used that literal hex in the first version of this package, which is why the colors looked off. I went back and sampled the actual pixel color from the pink swatch and the logo/UI mockup in your image directly, and it's a true pastel pink — around `#F4A6C8`. The peach (`#F4A261`) and mint (`#2A9D8F`) hex codes were both accurate to their swatches, so those didn't change. This version uses the corrected pink everywhere the palette shows up: the logo, Daily Doodle's pack accent, and buttons/pills that inherit the default accent.
 
-- Four **A records** on the root/apex (`@`), pointing to GitHub Pages' current IPs:
-  - `185.199.108.153`
-  - `185.199.109.153`
-  - `185.199.110.153`
-  - `185.199.111.153`
-- (Optional but recommended) A **CNAME record** for `www` pointing to `theplaidscientist.github.io`, so `www.discodoodle.com` also works and redirects properly.
+## What changed
 
-Remove any placeholder/parking DNS records Porkbun may have added by default.
+**Logo.** The header brand mark is the stacked "disco / doodle" wordmark in Shrikhand, left-justified, with a dark outline and the pink/mint two-tone coloring from the style guide, plus the disco ball accent. It scales up to the full 120px from the guide on a normal desktop window, and scales smoothly down on narrower screens so it never breaks the layout on mobile. It's also a link back to the homepage now, since it's the biggest thing in the header. It appears identically on every page — generator packs, Gallery, Submit, and Admin.
 
-**2. Push this package (with the new `CNAME` file) to GitHub.**
-Once GitHub sees the `CNAME` file in the repo, it'll pick it up automatically.
+**Fonts.** Shrikhand is used only for that logo wordmark. Poppins replaces both of the old fonts (Russo One and Open Sans) everywhere else — body text, page headings, and all the pill/capsule buttons (pack switcher, Spin button, mode toggles, category chips, submit button, etc.).
 
-**3. Set the custom domain in repo settings.**
-Go to your repo → **Settings → Pages**. Under "Custom domain," enter `discodoodle.com` and save. (If the `CNAME` file is already in the repo, GitHub may auto-detect it, but it's worth confirming here.) GitHub will check your DNS — this can take anywhere from a few minutes to ~24 hours to fully propagate and go green.
+**Color palette.** The three corrected brand colors:
 
-**4. Enable HTTPS.**
-Once GitHub finishes provisioning a TLS certificate for the domain (same Settings → Pages screen), an "Enforce HTTPS" checkbox will become available. Turn it on. Until the cert is ready, the checkbox will be grayed out — that's expected, just check back later.
+- Peach Highlight `#F4A261`
+- Gentle Pink `#F4A6C8`
+- Mint Green `#2A9D8F`
 
-**5. Add the domain to Firebase's authorized domains — important, don't skip this one.**
-Your admin moderation page (`wall/admin.html`) uses Firebase Google Sign-In, and Firebase only allows sign-in from domains it explicitly trusts. Right now it trusts the old `github.io` URL (and Firebase's own defaults), but not `discodoodle.com`. Until you add it, trying to sign into `/wall/admin.html` from the new domain will fail with the "domain isn't authorized for sign-in" error that's already built into that page.
+The site already had an "each pack gets its own accent color" system built in, so I kept that structure and mapped one brand color to each pack — the three packs stay visually distinct while all three stay strictly on your palette:
 
-Fix: Firebase console → **Authentication → Settings → Authorized domains** → **Add domain** → enter `discodoodle.com` (and `www.discodoodle.com` if you set up the `www` CNAME). Takes effect immediately, no waiting.
+- Daily Doodle → Pink
+- Monster Maker → Mint
+- Theme Park Edition → Peach
 
-**6. Set up Google Search Console for the new domain.**
-Search Console tracking is per-domain, so the old `github.io` URL (which likely was never meaningfully indexed anyway) doesn't carry over. Add `discodoodle.com` as a new property, verify ownership (Search Console will give you a DNS TXT record or HTML file option — DNS TXT via Porkbun is easiest since you're already in there), then submit `https://discodoodle.com/sitemap.xml` under Sitemaps.
+The overall page background, cards, and text colors shifted from the old cool gray palette to a warm cream/charcoal palette that sits comfortably with all three brand colors.
 
-**7. Repo rename — do this last, after the domain is confirmed working.**
-Once you've confirmed `discodoodle.com` loads the site correctly over HTTPS, it's safe to rename the GitHub repo from `sketchlabcentral` to something like `discodoodle`. A couple of things worth knowing first:
-- GitHub auto-redirects normal repo URLs and `git clone`/`git pull`/`git push` operations after a rename, so nothing breaks for you as the owner.
-- GitHub does **not** auto-redirect the old GitHub Pages project-site URL (`theplaidscientist.github.io/sketchlabcentral/`) after a rename — but this is a non-issue for you, because your custom domain is tied to the repo object itself (it survives the rename), and all real visitor traffic will be going through `discodoodle.com`, not the `github.io` URL.
-- This is also the natural moment to prune anything in the repo that isn't Disco Doodle — you mentioned wanting only Disco Doodle–related material on this site going forward, so a rename is a good checkpoint to do that cleanup at the same time.
+**Gallery page.** Its moody dark theme is untouched in spirit (still dark, still the wood-look picture frames), but its accent color moved from the old gold to your brand Peach, and it now uses Poppins/Shrikhand like everywhere else.
 
-## What's intentionally NOT in this package
+One small honesty note: the pastel pink and peach are both fairly light, so as plain text/outline color on a white pill (like the pack-switcher buttons) they read a little soft rather than high-contrast. It's legible and matches your actual brand swatch faithfully, but if you'd rather have punchier, higher-contrast pill text, I can add a slightly deepened shade of the same pink/peach hue used just for text while keeping the true pastel for the bigger fills (logo, buttons) — just say the word.
 
-The site restructure you described (left-sidebar pack menu with mobile hamburger collapse, redesigned Gallery/Submit pages, removing the gallery auto-scroll, larger gallery image cards) is a separate, bigger piece of work — per your own call, that's happening as its own follow-up once the domain is live and confirmed working. Just say the word when you're ready for it.
+## What I deliberately left alone (and why)
+
+- **The shareable result-card image** (the PNG people get when they hit "Save Image" or share a result) uses its own background color and its own font (Anton) baked into a canvas drawing, separate from the website's CSS. Left untouched for now — happy to redesign that to match as its own follow-up.
+- **The Gallery's picture-frame gradient** (the warm wood-tone border around each piece of art) is a deliberate "physical frame" effect, not a brand color — left as-is rather than forcing it into pink/mint.
+- **The disco-ball intro animation's confetti colors** are intentionally a full rainbow, like a real disco light show — left alone rather than restricting to 3 colors.
+- **Seasonal holiday chip colors** (Halloween orange, Christmas red/green) are functional/seasonal, not brand colors, so untouched.
+
+## What's still queued up separately
+
+The bigger structural changes — the left-sidebar pack menu with mobile hamburger collapse, killing the Gallery's auto-scroll, and making the gallery images bigger (especially on mobile) — are still their own separate piece of work. Say the word whenever you're ready for that one.

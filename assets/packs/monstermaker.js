@@ -79,7 +79,7 @@
     label: 'Monster Maker',
     tagline: 'Ideas for your Monster!',
     instruction: 'Add your own items, then hit spin.',
-    accent: { accent: '#3d4322', accentContrast: '#ffffff', accentSoft: '#e3e8cf' },
+    accent: { accent: '#2A9D8F', accentContrast: '#ffffff', accentSoft: '#DDF2EE' },
     categories: categories,
     coreKeys: ['eyeballs', 'horns', 'skinTexture', 'prop'],
     buildSentence: buildSentence,

@@ -70,7 +70,7 @@
     label: 'Daily Doodle',
     tagline: 'Ideas for your Noodle!',
     instruction: 'Add your own items, then hit spin.',
-    accent: { accent: '#242B5C', accentContrast: '#ffffff', accentSoft: '#E1E4FB' },
+    accent: { accent: '#F4A6C8', accentContrast: '#2E2622', accentSoft: '#FBE0EA' },
     categories: categories,
     coreKeys: ['animal', 'job', 'prop'],
     buildSentence: buildSentence,

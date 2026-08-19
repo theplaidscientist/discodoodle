@@ -25,9 +25,17 @@
         'aria-label="Switch to ' + p.label + '">' + p.label + '</button>';
     }).join('');
 
+    // Home always means the shell (index.html) — relative, one directory
+    // up from the Gallery/Submit/Admin pages, same directory everywhere else.
+    var homeHref = (window.location.pathname.indexOf('/wall/') !== -1) ? '../index.html' : 'index.html';
+
     mount.innerHTML =
       '<header id="sl-header">' +
-        '<div class="sl-brand"><span class="sl-dot" aria-hidden="true">🪩</span>Disco Doodle</div>' +
+        '<a href="' + homeHref + '" class="dd-logo" aria-label="Disco Doodle — home">' +
+          '<span class="dd-logo-ball" aria-hidden="true">🪩</span>' +
+          '<span class="dd-logo-line dd-logo-line--disco">disco</span>' +
+          '<span class="dd-logo-line dd-logo-line--doodle">doodle</span>' +
+        '</a>' +
         '<div id="pack-pills">' + pills + '</div>' +
       '</header>' +
       '<div id="holiday-accent" aria-hidden="true"></div>';

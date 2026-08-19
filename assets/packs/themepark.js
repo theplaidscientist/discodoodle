@@ -277,7 +277,7 @@
     label: 'Theme Park Edition',
     tagline: 'Disney & Universal drawing prompts!',
     instruction: 'Toggle your parks below, then hit spin.',
-    accent: { accent: '#8a1fbf', accentContrast: '#ffffff', accentSoft: '#f1defc' },
+    accent: { accent: '#F4A261', accentContrast: '#2E2622', accentSoft: '#FCE8D5' },
     categories: categories,
     coreKeys: ['character', 'snack', 'attraction'],
     advancedForcesKeys: ['action', 'outfit', 'mood'], // bonkers turns all 6 on
