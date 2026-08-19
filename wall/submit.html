@@ -16,6 +16,10 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Shrikhand&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../assets/style.css">
+<!-- EmailJS — sends Andy a "new submission" email straight from the
+     browser when someone submits art, no backend needed. See the
+     notifyNewSubmission() setup below and INSTRUCTIONS.md. -->
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js" defer></script>
 <style>
   body { font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif; }
   .wall-title, h1.pack-title { font-family: 'Poppins', sans-serif; font-weight: 700; }
@@ -144,6 +148,38 @@
   var MAX_DIMENSION = 1000;
   var JPEG_QUALITY = 0.82;
 
+  /* ---------------- New-submission email notification ----------------
+     EmailJS sends this straight from the browser — no backend, no Cloud
+     Functions, no Firebase Blaze upgrade, matching how the rest of this
+     site is built. Free tier: 200 emails/month, no credit card required.
+     IDs below are placeholders — see INSTRUCTIONS.md for how to get real
+     ones from a free EmailJS account and drop them in here.
+
+     Best-effort on purpose: this is called AFTER the submission is already
+     saved, and any failure here (bad IDs, quota hit, offline) is swallowed
+     and just logged — a visitor should never see an error, or think their
+     art wasn't submitted, because Andy's email notification didn't go out. */
+  var EMAILJS_PUBLIC_KEY = 'IDNi1pZEUeXddnP9c';
+  var EMAILJS_SERVICE_ID = 'service_7mo6tgb';
+  var EMAILJS_TEMPLATE_ID = 'template_0cauxsr';
+
+  function notifyNewSubmission(entry) {
+    if (!window.emailjs || EMAILJS_PUBLIC_KEY.indexOf('PASTE_YOUR') === 0) return;
+    try {
+      window.emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+        name: entry.name,
+        pack: entry.pack,
+        image_url: entry.imageUrl,
+        submitted_at: new Date(entry.submittedAt).toLocaleString(),
+        admin_link: 'https://discodoodle.com/wall/admin.html'
+      }, { publicKey: EMAILJS_PUBLIC_KEY }).catch(function (err) {
+        console.error('New-submission email notification failed (the submission itself still succeeded):', err);
+      });
+    } catch (err) {
+      console.error('New-submission email notification failed (the submission itself still succeeded):', err);
+    }
+  }
+
   function $(id) { return document.getElementById(id); }
 
   function resizeImage(file) {
@@ -240,10 +276,11 @@
     btn.disabled = true;
     btn.textContent = 'Uploading…';
     var uploadedAt = Date.now();
+    var entry;
     resizeImage(file)
       .then(function (blob) { return uploadImage(blob); })
       .then(function (uploaded) {
-        return submitMetadata({
+        entry = {
           name: ($('art-name').value || '').trim() || 'Anonymous Artist',
           pack: $('art-pack').value,
           imageUrl: uploaded.downloadURL,
@@ -251,9 +288,11 @@
           submittedAt: uploadedAt,
           licenseAgreed: true,
           approved: false
-        });
+        };
+        return submitMetadata(entry);
       })
       .then(function () {
+        notifyNewSubmission(entry);
         fb.className = 'ok';
         fb.textContent = "Thanks! Your art is awaiting review and will appear once it's approved.";
         $('submit-form').reset();
