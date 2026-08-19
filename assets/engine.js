@@ -579,14 +579,27 @@
     return lines;
   }
 
-  // Brand palette, duplicated from assets/style.css :root on purpose — a
-  // canvas draw has no access to CSS custom properties.
+  // Brand palette. INK is plain black rather than the site's warm-brown
+  // --text-primary (#2e2622) — reads as brown at this size/weight, which
+  // isn't what "brand colors" means here.
   var SHARE_BRAND_PINK = '#F4A6C8';
   var SHARE_BRAND_MINT = '#2A9D8F';
-  var SHARE_INK = '#2e2622';
+  var SHARE_INK = '#000000';
   var SHARE_BORDER = '#e3d6c4';
   var SHARE_CARD_BG = '#ffffff';
   var SHARE_BALL_SRC = '/android-chrome-512x512.png';
+
+  // Canvas has no -webkit-text-stroke — this reproduces the site logo's
+  // outlined-letter look (see .dd-logo-line in style.css) by stroking each
+  // segment before filling it, same as the CSS paint-order: stroke fill.
+  function fillOutlinedText(ctx, text, x, y, fillColor, strokeWidth) {
+    ctx.lineWidth = strokeWidth;
+    ctx.strokeStyle = SHARE_INK;
+    ctx.lineJoin = 'round';
+    ctx.strokeText(text, x, y);
+    ctx.fillStyle = fillColor;
+    ctx.fillText(text, x, y);
+  }
 
   async function buildShareImageBlob(pack) {
     var W = 1080;
@@ -619,34 +632,41 @@
     var accent = hc || pack.accent;
     ctx.fillStyle = accent.accentSoft; ctx.fillRect(0, 0, W, H);
 
-    // Oversized disco-ball watermark, low-opacity, centered behind the
-    // wordmark and the card — a real PNG rather than the 🪩 emoji glyph,
-    // same reasoning as the site logo fix: emoji rendering is inconsistent
-    // across devices, the actual icon is consistent everywhere.
+    // Giant disco ball, deliberately bigger than the card so it overflows
+    // past its edges — drawn before the card/wordmark (so those still sit
+    // on top, fully legible) but at near-full opacity so it actually reads
+    // as "a disco ball," not a faint watermark. A real PNG rather than the
+    // 🪩 emoji glyph, same reasoning as the site logo fix: emoji rendering
+    // is inconsistent across devices, the actual icon is consistent
+    // everywhere.
     if (ballImg) {
-      var ballSize = Math.min(W, H) * 0.95;
+      var ballSize = cardWidth * 1.3;
       ctx.save();
-      ctx.globalAlpha = 0.16;
+      ctx.globalAlpha = 0.92;
       ctx.drawImage(ballImg, W / 2 - ballSize / 2, cardY + cardHeight / 2 - ballSize / 2, ballSize, ballSize);
       ctx.restore();
     }
 
-    // ---- Wordmark: "Disco" (pink) "Doodle" (mint) [disco-ball dot] "com" (ink) ----
+    // ---- Wordmark: "disco" (pink) "doodle" (mint) [disco-ball dot] "com"
+    // (black) — lowercase and outlined, matching the real site logo
+    // (.dd-logo-line: lowercase text, -webkit-text-stroke outline) instead
+    // of plain title-case unoutlined text. ----
     ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
     ctx.font = '400 70px Shrikhand, cursive';
     var wmY = 140;
-    var segDisco = 'Disco ', segDoodle = 'Doodle';
+    var wmStroke = 70 * 0.09;
+    var segDisco = 'disco ', segDoodle = 'doodle';
     var dotSize = 44, dotGap = 8;
     var wDisco = ctx.measureText(segDisco).width;
     var wDoodle = ctx.measureText(segDoodle).width;
     var wCom = ctx.measureText('com').width;
     var totalW = wDisco + wDoodle + dotGap + dotSize + dotGap + wCom;
     var wmX = W / 2 - totalW / 2;
-    ctx.fillStyle = SHARE_BRAND_PINK; ctx.fillText(segDisco, wmX, wmY); wmX += wDisco;
-    ctx.fillStyle = SHARE_BRAND_MINT; ctx.fillText(segDoodle, wmX, wmY); wmX += wDoodle + dotGap;
+    fillOutlinedText(ctx, segDisco, wmX, wmY, SHARE_BRAND_PINK, wmStroke); wmX += wDisco;
+    fillOutlinedText(ctx, segDoodle, wmX, wmY, SHARE_BRAND_MINT, wmStroke); wmX += wDoodle + dotGap;
     if (ballImg) ctx.drawImage(ballImg, wmX, wmY - dotSize * 0.86, dotSize, dotSize);
     wmX += dotSize + dotGap;
-    ctx.fillStyle = SHARE_INK; ctx.fillText('com', wmX, wmY);
+    fillOutlinedText(ctx, 'com', wmX, wmY, SHARE_INK, wmStroke);
 
     // ---- Prompt card ----
     ctx.save(); ctx.shadowColor = 'rgba(46,38,34,0.16)'; ctx.shadowBlur = 26; ctx.shadowOffsetY = 8;
