@@ -514,6 +514,13 @@ h1.pack-title {
   gap: 8px; flex-wrap: wrap; margin: 0 0 10px;
 }
 #sl-footer .holiday-chip { text-decoration: none; }
+/* "Share Your Art in our Doodle Gallery" — same plain bold-link treatment
+   as the "other packs" links on generator pages, not a pill. Overrides the
+   general "#sl-footer a" underline above (a plain sentence still shouldn't
+   underline its links the same way GitHub/License/Contact do below it). */
+.sl-footer-share-line { margin: 0 0 10px; }
+#sl-footer .other-pack-link { text-decoration: none; }
+#sl-footer .other-pack-link:hover { text-decoration: underline; }
 /* Everything else — GitHub/License/Contact/copyright/Plaid Labs — is one
    plain text line now instead of several stacked <br>s. */
 .sl-footer-line { margin: 0; }
