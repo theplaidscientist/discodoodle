@@ -17,8 +17,10 @@
   // Contact email is assembled at runtime (never written out as a literal
   // string in the page source) and only attached to the link after it's
   // in the DOM, as a light deterrent against address-harvesting bots.
-  var MAIL_USER = 'plaidlabs';
-  var MAIL_HOST = 'gmail.com';
+  // Branded address now that discodoodle.com has its own mail forwarding
+  // (via Porkbun) — was plaidlabs@gmail.com before.
+  var MAIL_USER = 'hello';
+  var MAIL_HOST = 'discodoodle.com';
 
   var SHELL_URL = 'https://discodoodle.com/';
   var GALLERY_URL = 'https://discodoodle.com/wall/';
