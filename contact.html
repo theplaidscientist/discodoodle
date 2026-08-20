@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contact Us — Disco Doodle</title>
+<meta name="description" content="Get in touch with Disco Doodle — email us or follow along on Instagram and Facebook.">
+<link rel="canonical" href="https://discodoodle.com/contact.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Contact Us — Disco Doodle">
+<meta property="og:description" content="Get in touch with Disco Doodle — email us or follow along on Instagram and Facebook.">
+<meta property="og:image" content="https://discodoodle.com/assets/og/og-home.png">
+<meta property="og:url" content="https://discodoodle.com/contact.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Contact Us — Disco Doodle">
+<meta name="twitter:description" content="Get in touch with Disco Doodle — email us or follow along on Instagram and Facebook.">
+<meta name="twitter:image" content="https://discodoodle.com/assets/og/og-home.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="shortcut icon" href="/favicon.ico">
+<meta name="theme-color" content="#F4A261">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Disco Doodle">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shrikhand&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<style>
+  body { font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif; }
+  .wall-title, h1.pack-title { font-family: 'Poppins', sans-serif; font-weight: 700; }
+  .wall-title { font-size: 28px; margin: 1rem 0 0; text-align: center; letter-spacing: 0.01em; }
+  .wall-sub { text-align: center; font-size: 14px; color: var(--text-secondary); max-width: 440px; margin: 8px auto 1.75rem; }
+
+  #contact-section {
+    max-width: 480px; margin: 0 auto 2rem; background: var(--surface-2);
+    border: 0.5px solid var(--border); border-radius: 18px; padding: 1.5rem 1.5rem 1.75rem;
+    box-shadow: 0 10px 30px rgba(46, 38, 34, 0.06);
+  }
+  .contact-block { margin-bottom: 1.5rem; }
+  .contact-block:last-child { margin-bottom: 0; }
+  .contact-block h2 {
+    font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 15px;
+    text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted);
+    margin: 0 0 8px;
+  }
+  .contact-email {
+    display: inline-block; font-size: 18px; font-weight: 600;
+    color: var(--text-primary); text-decoration: none;
+  }
+  .contact-email:hover { color: var(--accent); }
+  .contact-note { font-size: 12px; color: var(--text-secondary); margin: 6px 0 0; line-height: 1.5; }
+  .contact-note a { color: var(--text-secondary); }
+
+  .social-links { display: flex; flex-wrap: wrap; gap: 10px; }
+  .social-link {
+    font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 600;
+    color: var(--text-primary); text-decoration: none;
+    border: 0.5px solid var(--border); border-radius: 999px;
+    padding: 9px 18px; background: var(--surface-1);
+  }
+  .social-link:hover { color: var(--accent); border-color: var(--accent); }
+</style>
+</head>
+<body>
+
+<div id="sl-header-mount"></div>
+
+<main id="app">
+  <h1 class="wall-title">Contact Us</h1>
+  <p class="wall-sub">Questions, feedback, or just want to say hi? We'd love to hear from you.</p>
+
+  <section id="contact-section">
+    <div class="contact-block">
+      <h2>Email</h2>
+      <a href="#" id="contact-email-link" class="contact-email">hello [at] discodoodle.com</a>
+      <p class="contact-note">Copyright concern about something in the Gallery? Email <a href="mailto:dmca@discodoodle.com">dmca@discodoodle.com</a> instead.</p>
+    </div>
+    <div class="contact-block">
+      <h2>Follow Along</h2>
+      <div class="social-links">
+        <a href="https://instagram.com/discodoodlestudio" class="social-link" target="_blank" rel="noopener">Instagram</a>
+        <a href="https://facebook.com/discodoodlestudio" class="social-link" target="_blank" rel="noopener">Facebook</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div id="sl-footer-mount"></div>
+
+<script src="assets/header.js" defer></script>
+<script src="assets/footer.js" defer></script>
+<script defer>
+  // Same light anti-harvesting pattern as the old footer contact link —
+  // assembled at runtime rather than written as a literal string in the
+  // page source, so simple scrapers scanning HTML don't pick it up directly.
+  document.addEventListener('DOMContentLoaded', function () {
+    var link = document.getElementById('contact-email-link');
+    if (!link) return;
+    var user = 'hello', host = 'discodoodle.com';
+    link.href = 'mailto:' + user + '@' + host + '?subject=' + encodeURIComponent('Disco Doodle');
+    link.textContent = user + '@' + host;
+  });
+</script>
+
+</body>
+</html>

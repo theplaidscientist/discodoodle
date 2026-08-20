@@ -14,14 +14,6 @@
   // no dependency on a third-party asset URL.
   var PLAID_ICON = '<span aria-hidden="true">🧪</span> ';
 
-  // Contact email is assembled at runtime (never written out as a literal
-  // string in the page source) and only attached to the link after it's
-  // in the DOM, as a light deterrent against address-harvesting bots.
-  // Branded address now that discodoodle.com has its own mail forwarding
-  // (via Porkbun) — was plaidlabs@gmail.com before.
-  var MAIL_USER = 'hello';
-  var MAIL_HOST = 'discodoodle.com';
-
   var SHELL_URL = 'https://discodoodle.com/';
   var GALLERY_URL = 'https://discodoodle.com/wall/';
   var SUBMIT_URL = 'https://discodoodle.com/wall/submit.html';
@@ -63,16 +55,12 @@
         '<p class="sl-footer-line">' +
           '<a href="https://github.com/theplaidscientist">GitHub</a> · ' +
           '<a href="https://theplaidscientist.github.io/CONTENT-LICENSE.md">License</a> · ' +
-          '<a href="#" id="sl-contact-link" rel="nofollow noopener">Contact Us</a> · ' +
+          '<a href="/contact.html">Contact Us</a> · ' +
+          '<a href="/privacy.html">Privacy</a> · ' +
           '© 2026 Andy Schelb — code MIT, content CC BY-NC 4.0 · ' +
           '<a href="https://theplaidscientist.github.io/" class="sl-footer-parent">' + PLAID_ICON + 'Plaid Labs</a>' +
         '</p>' +
       '</footer>';
-
-    var contactLink = document.getElementById('sl-contact-link');
-    if (contactLink) {
-      contactLink.href = 'mailto:' + MAIL_USER + '@' + MAIL_HOST + '?subject=' + encodeURIComponent('Disco Doodle');
-    }
   }
 
   if (document.readyState === 'loading') {
