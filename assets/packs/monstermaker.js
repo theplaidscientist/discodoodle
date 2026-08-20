@@ -78,15 +78,13 @@
     id: 'monstermaker',
     label: 'Monster Maker',
     tagline: 'Ideas for your Monster!',
+    titleTag: 'Monster Maker — creature drawing prompt generator',
     instruction: 'Add your own items, then hit spin.',
     accent: { accent: '#2A9D8F', accentContrast: '#ffffff', accentSoft: '#DDF2EE' },
     categories: categories,
     coreKeys: ['eyeballs', 'horns', 'skinTexture', 'prop'],
     buildSentence: buildSentence,
     wordmark: 'MONSTER MAKER',
-    bgColor: '#6f7a3f',
-    watermark: 'Disco Doodle — Monster Maker',
-    resultLabel: 'Sketch Idea',
     holidayMap: { outfit: null, snack: null, prop: 'prop' }
   });
 })();

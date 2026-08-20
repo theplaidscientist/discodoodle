@@ -33,6 +33,68 @@
   var DB_URL = 'https://daily-doodle-b7c57-default-rtdb.firebaseio.com';
   var COUNTER_PATH = '/counters/sketchIdeas.json';
 
+  // ---------------- Content filter ----------------
+  // The only free-text entry point on the whole site is "Edit Categories" —
+  // anything typed in there can get randomly picked into the generated
+  // sentence, which then gets drawn onto the brand-plastered share image and
+  // posted wherever someone taps Share. This is a client-side word-list
+  // filter: it catches casual/accidental submissions of profanity, slurs,
+  // and sexual content before they ever enter the category pool. It is NOT
+  // real moderation — this site has no backend, so there's no way to review
+  // text server-side, and anyone determined enough to open devtools can
+  // bypass client-side JS entirely. Two checks, same word list: one at entry
+  // (addItem, below) so bad words never make it into a category in the first
+  // place, and one right before a share image gets built/shared (saveImage)
+  // as a last-resort backstop in case a flagged word ever reaches
+  // currentPlainResult some other way.
+  var BANNED_WORDS = [
+    'fuck', 'fucker', 'fucking', 'motherfucker', 'shit', 'bullshit', 'bitch',
+    'bastard', 'asshole', 'ass', 'dick', 'dickhead', 'pussy', 'cunt', 'cock',
+    'whore', 'slut', 'douche', 'douchebag', 'twat', 'wank', 'wanker', 'prick',
+    'piss', 'crap', 'damn', 'goddamn', 'hell',
+    'nigger', 'nigga', 'chink', 'spic', 'gook', 'kike', 'wetback', 'coon',
+    'faggot', 'fag', 'dyke', 'tranny', 'retard', 'retarded', 'cripple',
+    'nazi', 'hitler', 'kkk', 'terrorist',
+    'porn', 'porno', 'sex', 'nude', 'naked', 'penis', 'vagina', 'boob',
+    'boobs', 'tit', 'tits', 'orgasm', 'masturbate', 'blowjob', 'handjob',
+    'rape', 'rapist', 'molest', 'pedophile', 'pedo',
+    'kill', 'kys', 'suicide', 'murder',
+    'meth', 'heroin', 'cocaine', 'crack'
+  ];
+
+  var LEET_MAP = { '4': 'a', '@': 'a', '3': 'e', '1': 'i', '!': 'i', '0': 'o', '5': 's', '$': 's', '7': 't' };
+
+  function leetNormalize(s) {
+    return s.toLowerCase().replace(/[4@31!05\$7]/g, function (c) { return LEET_MAP[c] || c; });
+  }
+
+  function collapseRepeats(s) {
+    // "fuuuuck" -> "fuck" so simple letter-stretching doesn't dodge the list.
+    return s.replace(/(.)\1{1,}/g, '$1');
+  }
+
+  // Whole-word matching (not substring) on purpose — substring matching on
+  // words like "ass" or "hell" would false-positive on totally innocent
+  // words ("class", "brass", "shell", "hello"), which would be its own kind
+  // of annoying bug on a site meant to be fun for kids to use.
+  function containsBannedWord(text) {
+    if (!text) return false;
+    var norm = leetNormalize(text);
+    var tokens = norm.split(/[^a-z]+/).filter(Boolean);
+    for (var i = 0; i < tokens.length; i++) {
+      var t = tokens[i];
+      // Exact match first — matters because collapsing repeats below would
+      // otherwise mangle words that are themselves legitimately double-
+      // lettered (e.g. "ass" -> "as"), silently defeating the exact check.
+      if (BANNED_WORDS.indexOf(t) !== -1) return true;
+      // Then a collapsed-repeats fallback, to catch simple letter-stretching
+      // ("fuuuuck" -> "fuck") without that trade-off.
+      var collapsed = collapseRepeats(t);
+      if (collapsed !== t && BANNED_WORDS.indexOf(collapsed) !== -1) return true;
+    }
+    return false;
+  }
+
   // Maps each pack id to its dedicated, SEO-indexable landing page. Relative
   // (no leading slash / no domain) on purpose — works unchanged whether the
   // site lives at a custom domain root or under a GitHub Pages project
@@ -100,7 +162,10 @@
     applyAccent(pack.accent);
     if (window.SL_renderHeader) window.SL_renderHeader();
     renderShell(pack);
-    document.title = pack.label + ' — Disco Doodle';
+    // titleTag is the descriptive "what this actually does" copy (matches
+    // each page's static <title>/og:title); falls back to the old pattern
+    // only if a future pack forgets to set one.
+    document.title = pack.titleTag || (pack.label + ' — Disco Doodle');
     playDiscoIntro();
   }
 
@@ -403,6 +468,17 @@
     var input = document.getElementById('input-' + key);
     var val = input.value.trim();
     if (!val) return;
+    if (containsBannedWord(val)) {
+      // Native browser validation bubble — no extra markup/CSS needed, and
+      // it's a familiar pattern users already know how to dismiss.
+      input.setCustomValidity("That word can't be used here — it could end up on a shared image.");
+      input.reportValidity();
+      input.addEventListener('input', function clearCustomValidity() {
+        input.setCustomValidity('');
+        input.removeEventListener('input', clearCustomValidity);
+      });
+      return;
+    }
     pack.categories[key].items.push(val);
     input.value = '';
     renderItems(pack, key);
@@ -738,8 +814,20 @@
     var pack = window.SL_PACKS[currentPackId];
     var btn = document.getElementById('save-image-btn');
     var fb = document.getElementById('copy-feedback');
-    btn.disabled = true;
     var originalLabel = btn.textContent;
+
+    // Last-resort backstop — addItem() already keeps flagged words out of
+    // the category pool, so this should never actually trigger in normal
+    // use. It's here in case a flagged word ever reaches currentPlainResult
+    // some other way, since this is the one place text gets baked into a
+    // brand-plastered image that leaves the site.
+    if (containsBannedWord(currentPlainResult)) {
+      fb.textContent = "Can't share this one — spin again or tweak your categories.";
+      setTimeout(function () { fb.textContent = ''; }, 3000);
+      return;
+    }
+
+    btn.disabled = true;
 
     if (pendingShareBlob) {
       // Already built in the background (see showShare) — share/download

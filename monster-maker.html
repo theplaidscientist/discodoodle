@@ -21,6 +21,10 @@
 <link rel="manifest" href="/site.webmanifest">
 <link rel="shortcut icon" href="/favicon.ico">
 <meta name="theme-color" content="#F4A261">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Disco Doodle">
+<meta name="mobile-web-app-capable" content="yes">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Shrikhand&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -53,7 +57,12 @@
 <div id="sl-header-mount"></div>
 
 <main id="app" aria-live="polite">
-  <!-- Populated by assets/engine.js -->
+  <!-- Static fallback for crawlers/clients that don't run JS — engine.js
+       overwrites this entirely (app.innerHTML =) the instant the pack
+       boots, so this never shows for a real visitor with JS enabled. -->
+  <h1 class="pack-title">Monster Maker</h1>
+  <p class="subtitle">Ideas for your Monster!</p>
+  <p>A free, no-signup creature remix generator. Spin for eyeballs, horns, skin texture, arm style and more — a fresh monster design idea every time.</p>
 </main>
 
 <div id="sl-footer-mount"></div>

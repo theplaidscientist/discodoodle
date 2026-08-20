@@ -69,15 +69,16 @@
     id: 'dailydoodle',
     label: 'Daily Doodle',
     tagline: 'Ideas for your Noodle!',
+    // Used for the browser tab title / share-sheet preview instead of the
+    // old "Daily Doodle — Disco Doodle" (two "Doodle"s back to back read as
+    // redundant) — says what the tool actually does instead.
+    titleTag: 'Daily Doodle — free drawing prompt generator',
     instruction: 'Add your own items, then hit spin.',
     accent: { accent: '#F4A6C8', accentContrast: '#2E2622', accentSoft: '#FBE0EA' },
     categories: categories,
     coreKeys: ['animal', 'job', 'prop'],
     buildSentence: buildSentence,
     wordmark: 'DAILY DOODLE',
-    bgColor: '#edeff2',
-    watermark: 'Disco Doodle — Daily Doodle',
-    resultLabel: 'Sketch Idea',
     holidayMap: { outfit: 'outfit', snack: null, prop: 'prop' }
   });
 })();

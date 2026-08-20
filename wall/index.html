@@ -3,16 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Disco Doodle Gallery — Disco Doodle</title>
+<title>Community Art Gallery — Disco Doodle</title>
 <meta name="description" content="Stroll the Disco Doodle Gallery — art made from Disco Doodle's drawing prompts, submitted by fellow artists.">
 <link rel="canonical" href="https://discodoodle.com/wall/">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Disco Doodle Gallery — Disco Doodle">
+<meta property="og:title" content="Community Art Gallery — Disco Doodle">
 <meta property="og:description" content="Art made from Disco Doodle's drawing prompts, submitted by fellow artists.">
 <meta property="og:image" content="https://discodoodle.com/assets/og/og-home.png">
 <meta property="og:url" content="https://discodoodle.com/wall/">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Disco Doodle Gallery — Disco Doodle">
+<meta name="twitter:title" content="Community Art Gallery — Disco Doodle">
 <meta name="twitter:description" content="Art made from Disco Doodle's drawing prompts, submitted by fellow artists.">
 <meta name="twitter:image" content="https://discodoodle.com/assets/og/og-home.png">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -21,6 +21,10 @@
 <link rel="manifest" href="/site.webmanifest">
 <link rel="shortcut icon" href="/favicon.ico">
 <meta name="theme-color" content="#F4A261">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Disco Doodle">
+<meta name="mobile-web-app-capable" content="yes">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Shrikhand&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -108,14 +112,34 @@
     position: fixed; inset: 0; background: rgba(4,3,2,.94);
     display: none; align-items: center; justify-content: center;
     flex-direction: column; padding: 24px; z-index: 999;
+    touch-action: pan-y; /* let a vertical drag still feel natural; horizontal swipes are read in JS */
   }
   #lightbox.open { display: flex; }
-  #lightbox img { max-width: 90vw; max-height: 78vh; object-fit: contain; border-radius: 6px; box-shadow: 0 20px 40px rgba(0,0,0,.6); }
+  #lightbox img { max-width: 90vw; max-height: 78vh; object-fit: contain; border-radius: 6px; box-shadow: 0 20px 40px rgba(0,0,0,.6); user-select: none; -webkit-user-drag: none; }
   #lightbox-cap { color: #f2ede0; font-size: 13px; margin-top: 14px; text-align: center; max-width: 90vw; }
+  #lightbox-counter { color: #a89e8c; font-size: 12px; margin-top: 4px; text-align: center; }
   #lightbox-close {
     position: absolute; top: 16px; right: 16px; min-width: 44px; min-height: 44px;
     border: none; border-radius: 50%; background: rgba(255,255,255,.15); color: #fff;
     font-size: 20px; cursor: pointer; line-height: 1;
+  }
+  /* Prev/Next — visible tap targets for desktop click, but swipe (below) is
+     the primary way to browse on mobile, which is most of this page's
+     traffic. Hidden entirely when there's only one piece in the gallery. */
+  #lightbox-prev, #lightbox-next {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    min-width: 48px; min-height: 48px;
+    border: none; border-radius: 50%; background: rgba(255,255,255,.15); color: #fff;
+    font-size: 26px; cursor: pointer; line-height: 1;
+    display: flex; align-items: center; justify-content: center;
+  }
+  #lightbox-prev { left: 10px; }
+  #lightbox-next { right: 10px; }
+  #lightbox-prev:hover, #lightbox-next:hover, #lightbox-close:hover { background: rgba(255,255,255,.28); }
+  #lightbox.single-item #lightbox-prev,
+  #lightbox.single-item #lightbox-next { display: none; }
+  @media (max-width: 600px) {
+    #lightbox-prev, #lightbox-next { min-width: 44px; min-height: 44px; font-size: 22px; }
   }
 
   @media (max-width: 480px) {
@@ -148,8 +172,11 @@
 
 <div id="lightbox" aria-hidden="true">
   <button id="lightbox-close" type="button" aria-label="Close">✕</button>
+  <button id="lightbox-prev" type="button" aria-label="Previous piece">‹</button>
+  <button id="lightbox-next" type="button" aria-label="Next piece">›</button>
   <img id="lightbox-img" alt="">
   <p id="lightbox-cap"></p>
+  <p id="lightbox-counter"></p>
 </div>
 
 <script>
@@ -182,22 +209,68 @@
   }
 
   // ---- Lightbox ----
+  // Entries + the currently-open index live up here (not inside loadGallery's
+  // fetch callback) so navigation functions can reach them too.
   var lightbox = $('lightbox');
-  function openLightbox(entry) {
+  var entries = [];
+  var currentIndex = -1;
+
+  function showLightboxAt(idx) {
+    if (!entries.length) return;
+    // Wrap around both directions — swiping past the last piece loops back
+    // to the first, which is the more natural feel for browsing than a dead end.
+    currentIndex = ((idx % entries.length) + entries.length) % entries.length;
+    var entry = entries[currentIndex];
     $('lightbox-img').src = entry.imageUrl;
     $('lightbox-img').alt = (entry.name || 'Anonymous Artist') + "'s " + (entry.pack || 'Disco Doodle') + ' creation';
     $('lightbox-cap').textContent = (entry.name || 'Anonymous Artist') + ' · ' + (entry.pack || 'Disco Doodle') + ' · ' + formatDate(entry.submittedAt);
+    $('lightbox-counter').textContent = entries.length > 1 ? (currentIndex + 1) + ' / ' + entries.length : '';
+    lightbox.classList.toggle('single-item', entries.length <= 1);
     lightbox.classList.add('open');
     lightbox.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
   }
+  function openLightbox(idx) { showLightboxAt(idx); }
   function closeLightbox() {
     lightbox.classList.remove('open');
     lightbox.setAttribute('aria-hidden', 'true');
     $('lightbox-img').src = '';
+    currentIndex = -1;
+    document.body.style.overflow = '';
   }
+  function nextImage() { showLightboxAt(currentIndex + 1); }
+  function prevImage() { showLightboxAt(currentIndex - 1); }
+
   $('lightbox-close').addEventListener('click', closeLightbox);
+  $('lightbox-prev').addEventListener('click', function (e) { e.stopPropagation(); prevImage(); });
+  $('lightbox-next').addEventListener('click', function (e) { e.stopPropagation(); nextImage(); });
   lightbox.addEventListener('click', function (e) { if (e.target === lightbox) closeLightbox(); });
-  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeLightbox(); });
+  document.addEventListener('keydown', function (e) {
+    if (!lightbox.classList.contains('open')) return;
+    if (e.key === 'Escape') closeLightbox();
+    else if (e.key === 'ArrowRight') nextImage();
+    else if (e.key === 'ArrowLeft') prevImage();
+  });
+
+  // Swipe left/right — the intuitive way to browse on mobile, which is most
+  // of this page's real-world traffic. A tap (near-zero movement) is left
+  // alone so it still falls through to the close-on-backdrop-click handler
+  // above; only a real horizontal drag counts as a swipe.
+  var touchStartX = null, touchStartY = null;
+  lightbox.addEventListener('touchstart', function (e) {
+    if (e.touches.length !== 1) return;
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+  }, { passive: true });
+  lightbox.addEventListener('touchend', function (e) {
+    if (touchStartX === null) return;
+    var t = e.changedTouches[0];
+    var dx = t.clientX - touchStartX;
+    var dy = t.clientY - touchStartY;
+    touchStartX = null; touchStartY = null;
+    if (Math.abs(dx) < 45 || Math.abs(dx) < Math.abs(dy) * 1.5) return; // not a real horizontal swipe
+    if (dx < 0) nextImage(); else prevImage();
+  }, { passive: true });
 
   // ---- The Gallery — approved submissions only, static wrapping grid ----
   function loadGallery() {
@@ -205,7 +278,7 @@
     fetch(DB_URL + '/approvedWall.json')
       .then(function (res) { return res.json(); })
       .then(function (data) {
-        var entries = data ? Object.keys(data).map(function (k) { return Object.assign({ id: k }, data[k]); }) : [];
+        entries = data ? Object.keys(data).map(function (k) { return Object.assign({ id: k }, data[k]); }) : [];
         entries.sort(function (a, b) { return (b.submittedAt || 0) - (a.submittedAt || 0); });
         if (entries.length === 0) {
           grid.innerHTML = '<p class="wall-empty">No art in the gallery yet — be the first to submit!</p>';
@@ -224,12 +297,12 @@
 
         grid.addEventListener('click', function (e) {
           var card = e.target.closest('.gallery-card');
-          if (card) openLightbox(entries[Number(card.getAttribute('data-idx'))]);
+          if (card) openLightbox(Number(card.getAttribute('data-idx')));
         });
         grid.addEventListener('keydown', function (e) {
           if (e.key !== 'Enter' && e.key !== ' ') return;
           var card = e.target.closest('.gallery-card');
-          if (card) { e.preventDefault(); openLightbox(entries[Number(card.getAttribute('data-idx'))]); }
+          if (card) { e.preventDefault(); openLightbox(Number(card.getAttribute('data-idx'))); }
         });
       })
       .catch(function (err) {

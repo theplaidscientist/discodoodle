@@ -276,6 +276,7 @@
     id: 'themepark',
     label: 'Theme Park Edition',
     tagline: 'Disney & Universal drawing prompts!',
+    titleTag: 'Theme Park Edition — drawing prompt generator',
     instruction: 'Toggle your parks below, then hit spin.',
     accent: { accent: '#F4A261', accentContrast: '#2E2622', accentSoft: '#FCE8D5' },
     categories: categories,
@@ -283,9 +284,6 @@
     advancedForcesKeys: ['action', 'outfit', 'mood'], // bonkers turns all 6 on
     buildSentence: buildSentence,
     wordmark: 'THEME PARK EDITION',
-    bgColor: '#3a1a4d',
-    watermark: 'Disco Doodle — Theme Park Edition',
-    resultLabel: 'Sketch Idea',
     // Snack and Outfit are both handled entirely by refreshPools() (base
     // pool + park-dependent extras + current holiday content, if any)
     // rather than the generic engine-level swap, since their base content

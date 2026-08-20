@@ -2,15 +2,16 @@
    Injects nav markup on every page. Single source of truth so navigating
    between packs (or any standalone page) never feels like a different site.
 
-   Back to the horizontal pill header everywhere (renderHeader below) — full
-   120px logo, pack-switcher pills in a row underneath. The persistent left
-   sidebar (renderSidebar) was tried site-wide and then reverted: at real
-   viewport widths it read as a tall wall of empty space, and it forced the
-   logo down to 36px to fit the nav column. Sidebar code is kept below,
-   unused, rather than deleted — same as renderHeader was kept as an unused
-   fallback while the sidebar was the active layout, in case a future page
-   ever wants that persistent-nav treatment again. No page currently sets
-   window.SL_LAYOUT = 'sidebar', so renderHeader is what actually renders. */
+   Horizontal pill header (renderHeader below) — full 120px logo, no
+   pack-switcher UI here (see the note by renderHeader). A persistent left
+   sidebar layout was tried site-wide earlier and reverted: at real viewport
+   widths it read as a tall wall of empty space, and it forced the logo down
+   to 36px to fit the nav column. That sidebar implementation (and its ~140
+   lines of CSS) has been removed rather than kept dormant, since a site-wide
+   SEO/cleanup pass found it was genuinely unreachable — nothing sets
+   window.SL_LAYOUT = 'sidebar' anywhere, so it was just dead weight on every
+   page load. If a persistent-nav layout is wanted again later, it's cheap to
+   rebuild against the current header/footer pattern rather than resurrect. */
 
 /* ---------------- Analytics ----------------
    Cloudflare Web Analytics — chosen over Plausible because Plausible has no
@@ -38,16 +39,6 @@
     var mount = document.getElementById('sl-header-mount');
     if (!mount) return;
 
-    var packs = window.SL_PACK_LIST || [
-      { id: 'dailydoodle', label: 'Daily Doodle' }
-    ];
-    // null (not packs[0].id) when we're not actually looking at a pack —
-    // e.g. fresh page load before a generator page finishes booting, or
-    // any time we're on the Gallery/Submit/Admin — so nothing gets
-    // incorrectly highlighted as "current" until it truly is.
-    var current = window.SL_CURRENT_PACK || null;
-    var sidebarMode = window.SL_LAYOUT === 'sidebar';
-
     // Home always means the shell (index.html) — relative, one directory
     // up from the Gallery/Submit/Admin pages, same directory everywhere else.
     //
@@ -72,104 +63,14 @@
         '<span class="dd-logo-line dd-logo-line--doodle">doodle</span>' +
       '</a>';
 
-    if (sidebarMode) {
-      renderSidebar(mount, packs, current, homeHref, fullLogo, inWall, forceRoot);
-    } else {
-      renderHeader(mount, fullLogo);
-    }
-  }
-
-  // ---------------- Sidebar layout (site-wide) ----------------
-  function renderSidebar(mount, packs, current, homeHref, fullLogo, inWall, forceRoot) {
-    document.body.classList.add('dd-has-sidebar');
-
-    var navLinks = packs.map(function (p) {
-      var isCurrent = p.id === current;
-      return '<button type="button" class="dd-pack-link' + (isCurrent ? ' active' : '') + '" ' +
-        'data-pack="' + p.id + '"' + (isCurrent ? ' aria-current="page"' : '') + '>' + p.label + '</button>';
-    }).join('');
-
-    // Gallery/Submit links live one level down from the shell but are
-    // already-correct relative paths when we're inside /wall/ ourselves.
-    // forceRoot (404.html) always uses absolute paths — see homeHref note above.
-    var galleryHref = forceRoot ? '/wall/index.html' : (inWall ? 'index.html' : 'wall/index.html');
-    var submitHref = forceRoot ? '/wall/submit.html' : (inWall ? 'submit.html' : 'wall/submit.html');
-    var onGallery = window.SL_PAGE === 'gallery';
-    var onSubmit = window.SL_PAGE === 'submit';
-
-    mount.innerHTML =
-      '<div class="dd-mobile-bar">' +
-        '<button type="button" id="dd-menu-toggle" class="dd-menu-toggle" aria-label="Open pack menu" aria-expanded="false">' +
-          '<span aria-hidden="true">☰</span>' +
-        '</button>' +
-        '<a href="' + homeHref + '" class="dd-logo-compact" aria-label="Disco Doodle — home">' +
-          '<span class="dd-logo-compact-disco">disco</span> <span class="dd-logo-compact-doodle">doodle</span>' +
-        '</a>' +
-      '</div>' +
-      '<div id="dd-sidebar-backdrop" class="dd-sidebar-backdrop"></div>' +
-      '<aside id="dd-sidebar" class="dd-sidebar">' +
-        fullLogo +
-        '<nav class="dd-pack-nav" aria-label="Choose a pack">' + navLinks + '</nav>' +
-        '<div class="dd-sidebar-footer">' +
-          '<a href="' + galleryHref + '"' + (onGallery ? ' class="active" aria-current="page"' : '') + '>🖼️ Gallery</a>' +
-          '<a href="' + submitHref + '"' + (onSubmit ? ' class="active" aria-current="page"' : '') + '>🎨 Share Your Art</a>' +
-        '</div>' +
-      '</aside>' +
-      '<div id="holiday-accent" aria-hidden="true"></div>';
-
-    var sidebar = document.getElementById('dd-sidebar');
-    var backdrop = document.getElementById('dd-sidebar-backdrop');
-    var toggle = document.getElementById('dd-menu-toggle');
-
-    function openSidebar() {
-      sidebar.classList.add('open');
-      backdrop.classList.add('open');
-      toggle.setAttribute('aria-expanded', 'true');
-    }
-    function closeSidebar() {
-      sidebar.classList.remove('open');
-      backdrop.classList.remove('open');
-      toggle.setAttribute('aria-expanded', 'false');
-    }
-    toggle.addEventListener('click', function () {
-      if (sidebar.classList.contains('open')) closeSidebar(); else openSidebar();
-    });
-    backdrop.addEventListener('click', closeSidebar);
-    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeSidebar(); });
-
-    document.querySelectorAll('.dd-pack-link').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        var id = btn.getAttribute('data-pack');
-        if (id === current) { closeSidebar(); return; }
-        if (typeof window.SL_onPackChange === 'function') {
-          // We're on the shell itself — switch packs in place.
-          window.SL_onPackChange(id);
-        } else if (forceRoot) {
-          // 404.html: engine.js isn't loaded here (nothing to boot), so
-          // SL_PACK_LANDING doesn't exist — use the same map, absolute.
-          var rootLanding = { dailydoodle: 'daily-doodle.html', monstermaker: 'monster-maker.html', themepark: 'theme-park.html' };
-          window.location.href = '/' + (rootLanding[id] || '');
-        } else {
-          // Standalone page (Gallery/Submit/Admin) — jump to that pack's
-          // dedicated landing page. Relative + prefixed with "../" on
-          // purpose: no hardcoded domain, so this keeps working through a
-          // domain change or a GitHub Pages subpath without an edit here.
-          var landing = (window.SL_PACK_LANDING && window.SL_PACK_LANDING[id]) || ('?pack=' + id);
-          window.location.href = '../' + landing;
-        }
-        closeSidebar();
-      });
-    });
+    renderHeader(mount, fullLogo);
   }
 
   // ---------------- Header layout (site-wide) ----------------
   // Just the logo — no pack-switcher pills here anymore. Switching packs
   // now happens via the "other packs" links each generator page renders
   // near the bottom of its content (see engine.js's otherPacksLineHtml),
-  // which are real crawlable <a> links rather than JS-only buttons. Kept
-  // this as its own function (rather than inlining into injectHeader)
-  // since renderSidebar is still here as a dormant fallback and both are
-  // called the same way.
+  // which are real crawlable <a> links rather than JS-only buttons.
   function renderHeader(mount, fullLogo) {
     mount.innerHTML =
       '<header id="sl-header">' +
